@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Flex, Button } from "@chakra-ui/react";
 import { BiHistory } from "react-icons/bi";
 
@@ -35,9 +36,12 @@ export default function Nav() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <img
-            src="//img.shields.io/github/stars/carbonkuo-ap/twnoc-mbti"
+          <Image
+            src="https://img.shields.io/github/stars/carbonkuo-ap/twnoc-mbti"
             alt="GitHub Repo stars"
+            width={100}
+            height={20}
+            unoptimized
           />
         </a>
       </Flex>

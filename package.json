@@ -8,7 +8,7 @@
     "export": "next export",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "next build && touch out/.nojekyll"
+    "deploy": "next build && next export && touch out/.nojekyll"
   },
   "dependencies": {
     "@chakra-ui/react": "2.4.2",

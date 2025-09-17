@@ -7,7 +7,6 @@ const nextConfig = {
   trailingSlash: true,
   basePath: '/twnoc-mbti',
   assetPrefix: '/twnoc-mbti/',
-  output: 'export',
 }
 
 module.exports = nextConfig

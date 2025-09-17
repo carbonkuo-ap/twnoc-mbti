@@ -35,7 +35,7 @@ export default function TestInstructions(props: TestInstructionsProps) {
             快速回答問題，不要過度分析。有些可能措辭不當，選擇你感覺最合適的答案。
           </ListItem>
           <ListItem>
-            根據"你實際的情況"回答問題，而不是"你希望別人如何看待你"。
+            根據「你實際的情況」回答問題，而不是「你希望別人如何看待你」。
           </ListItem>
         </UnorderedList>
       </Flex>
