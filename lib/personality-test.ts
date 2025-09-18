@@ -2,6 +2,7 @@ import { openDB } from "idb";
 import { Option, Future, Result } from "@swan-io/boxed";
 import { personalityTest } from "../data/personality-test";
 import { personalityClassGroup } from "../data/personality-class-groups";
+import { encryptData, decryptData, validateEncryptedData } from "./encryption";
 
 export interface TestQuestion {
   no: number;
@@ -60,6 +61,8 @@ export interface TestResult {
   timestamp: number;
   testAnswers: TestAnswerOption["type"][];
   testScores: PersonalityClass["type"][];
+  isEncrypted?: boolean;
+  encryptedData?: string;
 }
 
 type Extroverted = "E";
@@ -151,7 +154,25 @@ export function getSavedTestResult(id: number) {
     getDb()
       .then((db) => db.get(TEST_RESULT_STORE, id))
       .then(Option.fromNullable)
-      .then((testResult) => resolve(Result.Ok(testResult)))
+      .then((testResult) => {
+        if (testResult.isSome()) {
+          const data = testResult.get();
+          // 檢查是否為加密資料
+          if (data.isEncrypted && data.encryptedData) {
+            try {
+              const decryptedData = decryptData(data.encryptedData);
+              resolve(Result.Ok(Option.Some(decryptedData)));
+            } catch (error) {
+              resolve(Result.Error(new Error('資料解密失敗')));
+            }
+          } else {
+            // 舊版未加密資料
+            resolve(Result.Ok(testResult));
+          }
+        } else {
+          resolve(Result.Ok(testResult));
+        }
+      })
       .catch((error) => resolve(Result.Error(error)));
   });
 }
@@ -161,7 +182,27 @@ export function getAllSavedTestResult() {
     getDb()
       .then((db) => db.getAll(TEST_RESULT_STORE))
       .then(Option.fromNullable)
-      .then((testResult) => resolve(Result.Ok(testResult)))
+      .then((testResults) => {
+        if (testResults.isSome()) {
+          const results = testResults.get();
+          try {
+            // 解密所有測試結果
+            const decryptedResults = results.map((data: any) => {
+              if (data.isEncrypted && data.encryptedData) {
+                return decryptData(data.encryptedData);
+              } else {
+                // 舊版未加密資料
+                return data;
+              }
+            });
+            resolve(Result.Ok(Option.Some(decryptedResults)));
+          } catch (error) {
+            resolve(Result.Error(new Error('資料解密失敗')));
+          }
+        } else {
+          resolve(Result.Ok(testResults));
+        }
+      })
       .catch((error) => resolve(Result.Error(error)));
   });
 }
@@ -172,9 +213,20 @@ export function saveTestResult(testResult: {
   testScores: PersonalityClass["type"][];
 }) {
   return Future.make<Result<number, Error>>((resolve) => {
-    getDb()
-      .then((db) => db.put(TEST_RESULT_STORE, testResult))
-      .then((id) => resolve(Result.Ok(id)))
-      .catch((error) => resolve(Result.Error(error)));
+    try {
+      // 加密測試結果
+      const encryptedResult = {
+        ...testResult,
+        encryptedData: encryptData(testResult),
+        isEncrypted: true
+      };
+
+      getDb()
+        .then((db) => db.put(TEST_RESULT_STORE, encryptedResult))
+        .then((id) => resolve(Result.Ok(id)))
+        .catch((error) => resolve(Result.Error(error)));
+    } catch (error) {
+      resolve(Result.Error(error instanceof Error ? error : new Error('加密失敗')));
+    }
   });
 }

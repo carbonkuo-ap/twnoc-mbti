@@ -62,7 +62,7 @@ export default function HomePage() {
         </Flex>
         <Image
           alt="illustration"
-          src={`/images/home-bottom.png`}
+          src={`/twnoc-mbti/images/home-bottom.png`}
           width={100}
           height={100}
           style={{

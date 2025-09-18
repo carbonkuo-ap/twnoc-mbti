@@ -30,20 +30,6 @@ export default function Nav() {
             MBTI 性格測試
           </Button>
         </Link>
-        {/* GitHub Repo stars */}
-        <a
-          href="https://github.com/carbonkuo-ap/twnoc-mbti"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            src="https://img.shields.io/github/stars/carbonkuo-ap/twnoc-mbti"
-            alt="GitHub Repo stars"
-            width={100}
-            height={20}
-            unoptimized
-          />
-        </a>
       </Flex>
       <Link href="/test/result/history">
         <Button

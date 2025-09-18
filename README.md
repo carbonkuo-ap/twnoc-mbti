@@ -4,21 +4,31 @@
 
 本專案實作了 MBTI（Myers-Briggs Type Indicator）性格測試，透過一系列問題，幫助使用者瞭解自己的個性特徵，並確定他們的 MBTI 類型。MBTI 將個性分為四個維度，最終組合出 16 種性格類型，使用者可根據測試結果瞭解更多關於自己的資訊。
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/23517e74-f46e-42e3-8a82-0da688ff1aa9/deploy-status)](https://mbti.yaavi.me/)
+![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-brightgreen)
 
-部署在 Netlify，造訪網址：[https://mbti.yaavi.me](https://mbti.yaavi.me)
+部署在 GitHub Pages，造訪網址：[https://carbonkuo-ap.github.io/twnoc-mbti/](https://carbonkuo-ap.github.io/twnoc-mbti/)
 
 ## 功能特性
 
 - **16 種 MBTI 類型**：透過測試瞭解您屬於哪種 MBTI 類型（如：INTJ、ENFP）。
-- **使用者友好界面**：簡潔直觀的設計，引導使用者完成測試問題。
+- **使用者友好界面**：簡潔直觀的設計，引導使用者完成測試問題，支援點擊動畫反饋。
 - **結果展示**：測試結果展示您的 MBTI 類型，並提供詳細的性格描述。
 - **行動裝置相容**：支援桌電和行動裝置的存取。
 - **問題自定義**：也可以修改問題，當作其他評估類的專案。
+- **🔐 管理後台**：隱藏的管理員介面，可查看加密的測試統計和記錄。
+- **🔒 資料加密**：測試結果使用 AES-256 加密儲存，保護使用者隱私。
+- **📊 統計分析**：管理後台提供測試統計、熱門類型分析等功能。
 
 ## 技術堆疊
 
 純前端，無需後端支援，基於 `Next.js` & `Chakra UI`。
+
+- **前端框架**: Next.js 13
+- **UI 元件庫**: Chakra UI
+- **狀態管理**: Zustand
+- **資料存儲**: IndexedDB (透過 idb)
+- **加密算法**: AES-256 (crypto-js)
+- **部署平台**: GitHub Pages
 
 ## 本地運行
 
@@ -38,8 +48,35 @@
    yarn dev
    ```
 
-4. **存取應用程式**：
+4. **設定環境變數**（可選）：
+   ```bash
+   cp .env.example .env.local
+   # 編輯 .env.local 並設定管理員帳號密碼和加密金鑰
+   ```
+
+5. **存取應用程式**：
    在瀏覽器中開啟主控台輸出的連結，存取應用程式。
+
+## 管理後台
+
+本專案包含隱藏的管理員後台功能：
+
+### 存取方式
+- 路由：`/mbti-admin`
+- 預設帳號：`twnoc-yjmbti`
+- 密碼：通過環境變數或 GitHub Secrets 設定
+
+### 功能特色
+- 📈 **即時統計**：總測試次數、今日測試數、最受歡迎類型
+- 🔍 **測試記錄**：查看所有加密的測試歷史記錄
+- 🔐 **安全認證**：24 小時會話管理，自動過期保護
+- 📱 **響應式設計**：支援各種裝置尺寸
+
+### 環境變數設定
+對於生產環境，請在 GitHub Secrets 中設定：
+- `ADMIN_USERNAME`: 管理員使用者名稱
+- `ADMIN_PASSWORD`: 管理員密碼
+- `ENCRYPTION_KEY`: 資料加密金鑰
 
 ## MBTI 類型簡介
 

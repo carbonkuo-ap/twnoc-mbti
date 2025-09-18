@@ -62,7 +62,7 @@ export default function TestResult(props: TestResultProps) {
       </Text> */}
       <Image
         alt="illustration"
-        src={`/images/mbti/${personalityClassGroup.type.toLocaleUpperCase()}.png`}
+        src={`/twnoc-mbti/images/mbti/${personalityClassGroup.type.toLocaleUpperCase()}.png`}
         width={200}
         height={200}
       />
