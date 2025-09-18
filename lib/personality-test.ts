@@ -149,6 +149,18 @@ export function getPersonalityClassGroupByTestScores(
   )!;
 }
 
+export function getPersonalityClassGroupByType(type: string): PersonalityClassGroup {
+  const group = personalityClassGroup.find(
+    (personalityClass) => personalityClass.type === type
+  );
+
+  if (!group) {
+    throw new Error(`未找到性格類型: ${type}`);
+  }
+
+  return group;
+}
+
 export function getSavedTestResult(id: number) {
   return Future.make<Result<Option<TestResult>, Error>>((resolve) => {
     getDb()

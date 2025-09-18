@@ -60,13 +60,16 @@ import {
   WrapItem
 } from '@chakra-ui/react';
 import { FiUsers, FiActivity, FiBarChart, FiLogOut, FiKey, FiCopy, FiTrash2, FiCode, FiDownload, FiUpload } from 'react-icons/fi';
+import Image from 'next/image';
+import { Highlight } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import { personalityTypeDescriptions } from '../../data/personality-descriptions';
 import { isAuthenticated, logoutAdmin, getAdminSession, AdminUser } from '../../lib/auth';
 import {
   getAllSavedTestResult,
   TestResult,
-  getPersonalityClassGroupByTestScores
+  getPersonalityClassGroupByTestScores,
+  getPersonalityClassGroupByType
 } from '../../lib/personality-test';
 import { decryptData } from '../../lib/encryption';
 import {
@@ -199,10 +202,27 @@ export default function AdminDashboard() {
 
   const loadOTPData = async () => {
     try {
+      // 獲取合併後的 OTP tokens（包含 Firebase 使用狀態）
       const tokens = await getAllOTPTokens();
-      const stats = getOTPStatistics();
       setOtpTokens(tokens);
+
+      // 重新計算統計，基於合併後的資料
+      const now = Date.now();
+      const stats = {
+        total: tokens.length,
+        active: tokens.filter(t => t.expiresAt > now && !t.usedAt).length,
+        used: tokens.filter(t => t.usedAt).length,
+        expired: tokens.filter(t => t.expiresAt <= now).length
+      };
       setOtpStats(stats);
+
+      // 獲取 Firebase 使用統計
+      try {
+        const usageStats = await getAllOTPUsageStats();
+        setOtpUsageStats(usageStats);
+      } catch (error) {
+        console.warn('獲取 Firebase 使用統計失敗:', error);
+      }
     } catch (error) {
       console.error('載入 OTP 資料失敗:', error);
     }
@@ -1004,71 +1024,155 @@ export default function AdminDashboard() {
         {/* 人格報告 Modal */}
         <Modal isOpen={isReportModalOpen} onClose={onReportModalClose} size="6xl">
           <ModalOverlay />
-          <ModalContent maxW="80vw" maxH="90vh">
+          <ModalContent maxW="90vw" maxH="90vh">
             <ModalHeader>
               <HStack spacing={3}>
                 <Badge colorScheme={getTypeColor(selectedPersonalityType)} fontSize="lg" p={2}>
                   {selectedPersonalityType}
                 </Badge>
-                <Text fontSize="xl">
-                  {personalityTypeDescriptions[selectedPersonalityType]?.name || ''}
-                </Text>
+                <Text fontSize="xl">完整測試報告</Text>
               </HStack>
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody overflowY="auto">
-              {selectedPersonalityType && personalityTypeDescriptions[selectedPersonalityType] && (
-                <VStack align="stretch" spacing={6}>
-                  <Box>
-                    <Heading size="md" mb={3} color="blue.600">📖 性格描述</Heading>
-                    <Text fontSize="lg" lineHeight="1.8">
-                      {personalityTypeDescriptions[selectedPersonalityType].description}
-                    </Text>
-                  </Box>
+              {selectedPersonalityType && (() => {
+                const personalityClassGroup = getPersonalityClassGroupByType(selectedPersonalityType);
+                return (
+                  <VStack align="stretch" spacing={6}>
+                    {/* 性格類型標題和圖片 */}
+                    <Flex direction="column" align="center">
+                      <Heading as="h1" textAlign="center" mb={4}>
+                        <Highlight
+                          query={personalityClassGroup.type}
+                          styles={{ color: "primary.500" }}
+                        >
+                          {`${personalityClassGroup.type}`}
+                        </Highlight>
+                      </Heading>
+                      <Image
+                        alt="illustration"
+                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/mbti/${personalityClassGroup.type.toUpperCase()}.png`}
+                        width={150}
+                        height={150}
+                      />
+                      <Heading as="h2" fontSize="xl" textAlign="center" mt={4} mb={4}>
+                        {personalityClassGroup.epithet}
+                      </Heading>
+                    </Flex>
 
-                  <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
+                    {/* 性格描述 */}
                     <Box>
-                      <Heading size="md" mb={3} color="green.600">💪 主要優點</Heading>
+                      <Heading size="md" mb={3} color="blue.600">📖 性格描述</Heading>
+                      {personalityClassGroup.description
+                        .split(/\.\n+/g)
+                        .map((description) =>
+                          description.endsWith(".") ? description : `${description}.`
+                        )
+                        .map((description, index) => (
+                          <Text key={index} textAlign="justify" mb={2}>
+                            {description}
+                          </Text>
+                        ))}
+                    </Box>
+
+                    {/* 榮格功能偏好排序 */}
+                    <Box>
+                      <Heading size="md" mb={3} color="purple.600">🧠 榮格功能偏好排序</Heading>
+                      <Table size="sm">
+                        <Tbody>
+                          <Tr>
+                            <Th>主導功能</Th>
+                            <Td>{personalityClassGroup.jungianFunctionalPreference.dominant}</Td>
+                          </Tr>
+                          <Tr>
+                            <Th>輔助功能</Th>
+                            <Td>{personalityClassGroup.jungianFunctionalPreference.auxiliary}</Td>
+                          </Tr>
+                          <Tr>
+                            <Th>第三功能</Th>
+                            <Td>{personalityClassGroup.jungianFunctionalPreference.tertiary}</Td>
+                          </Tr>
+                          <Tr>
+                            <Th>劣勢功能</Th>
+                            <Td>{personalityClassGroup.jungianFunctionalPreference.inferior}</Td>
+                          </Tr>
+                        </Tbody>
+                      </Table>
+                    </Box>
+
+                    {/* 總體特質 */}
+                    <Box>
+                      <Heading size="md" mb={3} color="green.600">💫 {personalityClassGroup.type} 總體特質</Heading>
                       <UnorderedList spacing={2}>
-                        {personalityTypeDescriptions[selectedPersonalityType].strengths.map((strength, index) => (
-                          <ListItem key={index} fontSize="md">{strength}</ListItem>
+                        {personalityClassGroup.generalTraits.map((trait, index) => (
+                          <ListItem key={index} textAlign="justify">{trait}</ListItem>
                         ))}
                       </UnorderedList>
                     </Box>
 
+                    {/* 人際關係優缺點 */}
+                    <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
+                      <Box>
+                        <Heading size="md" mb={3} color="teal.600">👥 人際關係優點</Heading>
+                        <UnorderedList spacing={2}>
+                          {personalityClassGroup.relationshipStrengths.map((strength, index) => (
+                            <ListItem key={index} textAlign="justify">{strength}</ListItem>
+                          ))}
+                        </UnorderedList>
+                      </Box>
+
+                      <Box>
+                        <Heading size="md" mb={3} color="orange.600">⚠️ 人際關係不足</Heading>
+                        <UnorderedList spacing={2}>
+                          {personalityClassGroup.relationshipWeaknesses.map((weakness, index) => (
+                            <ListItem key={index} textAlign="justify">{weakness}</ListItem>
+                          ))}
+                        </UnorderedList>
+                      </Box>
+                    </SimpleGrid>
+
+                    {/* 成功定義 */}
                     <Box>
-                      <Heading size="md" mb={3} color="orange.600">⚠️ 需要改進</Heading>
-                      <UnorderedList spacing={2}>
-                        {personalityTypeDescriptions[selectedPersonalityType].weaknesses.map((weakness, index) => (
-                          <ListItem key={index} fontSize="md">{weakness}</ListItem>
+                      <Heading size="md" mb={3} color="yellow.600">🎯 成功定義</Heading>
+                      {personalityClassGroup.successDefinition
+                        .split(/\.\n+/g)
+                        .map((successDefinition) =>
+                          successDefinition.endsWith(".")
+                            ? successDefinition
+                            : `${successDefinition}.`
+                        )
+                        .map((successDefinition, index) => (
+                          <Text key={index} textAlign="justify" mb={2}>
+                            {successDefinition}
+                          </Text>
                         ))}
-                      </UnorderedList>
                     </Box>
-                  </SimpleGrid>
 
-                  <Box>
-                    <Heading size="md" mb={3} color="purple.600">💼 適合職業</Heading>
-                    <Wrap spacing={2}>
-                      {personalityTypeDescriptions[selectedPersonalityType].careers.map((career, index) => (
-                        <WrapItem key={index}>
-                          <Badge colorScheme="purple" variant="outline" fontSize="sm" p={2}>
-                            {career}
-                          </Badge>
-                        </WrapItem>
-                      ))}
-                    </Wrap>
-                  </Box>
+                    {/* 優勢和特殊才能 */}
+                    <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
+                      <Box>
+                        <Heading size="md" mb={3} color="green.600">💪 優勢</Heading>
+                        <UnorderedList spacing={2}>
+                          {personalityClassGroup.strengths.map((strength, index) => (
+                            <ListItem key={index} textAlign="justify">{strength}</ListItem>
+                          ))}
+                        </UnorderedList>
+                      </Box>
 
-                  <Box>
-                    <Heading size="md" mb={3} color="pink.600">❤️ 人際關係建議</Heading>
-                    <UnorderedList spacing={2}>
-                      {personalityTypeDescriptions[selectedPersonalityType].relationships.map((relationship, index) => (
-                        <ListItem key={index} fontSize="md">{relationship}</ListItem>
-                      ))}
-                    </UnorderedList>
-                  </Box>
-                </VStack>
-              )}
+                      <Box>
+                        <Heading size="md" mb={3} color="purple.600">✨ 特殊才能</Heading>
+                        <UnorderedList spacing={2}>
+                          {personalityClassGroup.gifts.map((gift, index) => (
+                            <ListItem key={index} textAlign="justify">{gift}</ListItem>
+                          ))}
+                        </UnorderedList>
+                      </Box>
+                    </SimpleGrid>
+
+                    {/* 其他詳細內容可以繼續添加 */}
+                  </VStack>
+                );
+              })()}
             </ModalBody>
             <ModalFooter>
               <Button onClick={onReportModalClose}>關閉</Button>
