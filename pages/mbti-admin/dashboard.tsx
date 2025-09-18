@@ -87,7 +87,6 @@ import {
   deleteOTPToken,
   getOTPStatistics,
   generateShareableOTPUrl,
-  cleanupExpiredOTPTokens,
   OTPToken
 } from '../../lib/otp';
 
@@ -126,7 +125,7 @@ export default function AdminDashboard() {
     // 檢查認證狀態
     const checkAuth = async () => {
       if (!(await isAuthenticated())) {
-        router.push('./index');
+        router.push('/mbti-admin');
         return;
       }
       loadDashboardData();
@@ -303,25 +302,15 @@ export default function AdminDashboard() {
   };
 
   const handleCleanupExpired = () => {
-    try {
-      const cleanedCount = cleanupExpiredOTPTokens();
-      loadOTPData();
-      toast({
-        title: '清理完成',
-        description: `已清理 ${cleanedCount} 個過期的 OTP Token`,
-        status: 'info',
-        duration: 3000,
-        isClosable: true,
-      });
-    } catch (error) {
-      console.error('清理過期 OTP Token 失敗:', error);
-      toast({
-        title: '清理失敗',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    }
+    // 過期的 tokens 現在由 Firebase 查詢自動處理
+    toast({
+      title: '提示',
+      description: '過期的 OTP Token 已由系統自動處理',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+    loadOTPData(); // 重新載入數據以刷新顯示
   };
 
   const handleExportData = async () => {
@@ -527,7 +516,7 @@ export default function AdminDashboard() {
       duration: 3000,
       isClosable: true,
     });
-    router.push('./index');
+    router.push('/mbti-admin');
   };
 
   const formatDate = (timestamp: string | number) => {

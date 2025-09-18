@@ -1,11 +1,37 @@
 import Link from "next/link";
-import { Heading, Text, Highlight, Flex, Button } from "@chakra-ui/react";
+import { useState } from "react";
+import { useRouter } from "next/router";
+import {
+  Heading,
+  Text,
+  Highlight,
+  Flex,
+  Button,
+  Input,
+  VStack,
+  HStack,
+  FormControl,
+  FormLabel,
+  Divider,
+  Box
+} from "@chakra-ui/react";
 import { FiArrowRight } from "react-icons/fi";
 import Image from "next/image";
 
 import MainLayout from "../components/layouts/main-layout";
 
 export default function HomePage() {
+  const [otpToken, setOtpToken] = useState('');
+  const router = useRouter();
+
+  const handleStartTestWithOTP = () => {
+    if (otpToken.trim()) {
+      router.push(`/test?otp=${encodeURIComponent(otpToken.trim())}`);
+    } else {
+      router.push('/test');
+    }
+  };
+
   return (
     <>
       <MainLayout>
@@ -40,7 +66,7 @@ export default function HomePage() {
                 color: "white",
               }}
             >
-              參加 MBTI 性格測試 
+              參加 MBTI 性格測試
             </Highlight>
           </Heading>
           <Text
@@ -49,16 +75,51 @@ export default function HomePage() {
           >
             通過這個性格測試更好地瞭解自己
           </Text>
-          <Link href="/test">
+
+          <VStack spacing={6} w="full" maxW="400px">
+            <Box w="full">
+              <FormControl>
+                <FormLabel textAlign="center" mb={3}>
+                  輸入 OTP Token (必填)
+                </FormLabel>
+                <Input
+                  value={otpToken}
+                  onChange={(e) => setOtpToken(e.target.value)}
+                  placeholder="請輸入您的 OTP Token"
+                  textAlign="center"
+                  size="lg"
+                />
+              </FormControl>
+            </Box>
+
             <Button
-              w="min-content"
+              w="full"
               colorScheme="primary"
               variant="solid"
               rightIcon={<FiArrowRight size={20} />}
+              onClick={handleStartTestWithOTP}
+              size="lg"
             >
               開始測試
             </Button>
-          </Link>
+
+            <Divider />
+
+            <Text fontSize="sm" color="gray.500" textAlign="center">
+              或者
+            </Text>
+
+            <Link href="/test">
+              <Button
+                w="full"
+                variant="outline"
+                colorScheme="primary"
+                rightIcon={<FiArrowRight size={16} />}
+              >
+                直接進入 (需要驗證)
+              </Button>
+            </Link>
+          </VStack>
         </Flex>
         <Image
           alt="illustration"

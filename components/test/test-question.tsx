@@ -92,43 +92,32 @@ export default function TestQuestion() {
       testResult.otpToken = otpToken;
     }
 
-    // 同時保存到本地和 Firebase
+    // 只保存到 Firebase
     try {
-      // 保存到本地 IndexedDB
-      const localResult = await saveTestResult(testResult);
+      const firebaseSuccess = await saveTestResultToFirebase(testResult);
 
-      localResult
-        .tap(() => {
-          setUserTestAnswers([]);
-        })
-        .tapOk(async (id) => {
-          // 嘗試保存到 Firebase
+      if (firebaseSuccess) {
+        setUserTestAnswers([]);
+
+        // 如果使用了 OTP token，標記為已使用
+        if (otpToken) {
           try {
-            const firebaseSuccess = await saveTestResultToFirebase(testResult);
-            console.log('Firebase 保存結果:', firebaseSuccess ? '成功' : '失敗');
-          } catch (firebaseError) {
-            console.warn('Firebase 保存失敗:', firebaseError);
-            // Firebase 失敗不影響本地功能
+            const otpLib = await import('../../lib/otp');
+            await otpLib.useOTPToken(otpToken, testResult.timestamp);
+            console.log('OTP Token 已標記為使用');
+          } catch (otpError) {
+            console.warn('標記 OTP Token 使用失敗:', otpError);
           }
+        }
 
-          // 如果使用了 OTP token，標記為已使用
-          if (otpToken) {
-            try {
-              const otpLib = await import('../../lib/otp');
-              await otpLib.useOTPToken(otpToken, id);
-              console.log('OTP Token 已標記為使用');
-            } catch (otpError) {
-              console.warn('標記 OTP Token 使用失敗:', otpError);
-            }
-          }
-
-          router.replace(`/test/result/?testResultId=${id}`);
-        })
-        .tapError((error) => {
-          console.error('本地保存失敗:', error);
-        });
+        router.replace(`/test/result/?testResultId=${testResult.timestamp}`);
+      } else {
+        console.error('Firebase 保存失敗');
+        alert('保存測試結果失敗，請稍後再試');
+      }
     } catch (error) {
       console.error('測試結果保存過程發生錯誤:', error);
+      alert('保存測試結果時發生錯誤，請稍後再試');
     }
   }
 

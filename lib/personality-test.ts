@@ -1,8 +1,7 @@
-import { openDB } from "idb";
 import { Option, Future, Result } from "@swan-io/boxed";
 import { personalityTest } from "../data/personality-test";
 import { personalityClassGroup } from "../data/personality-class-groups";
-import { encryptData, decryptData, validateEncryptedData } from "./encryption";
+import { saveTestResultToFirebase, getAllTestResultsFromFirebase, FirebaseTestResult } from "./firebase";
 
 export interface TestQuestion {
   no: number;
@@ -62,8 +61,6 @@ export interface TestResult {
   testAnswers: TestAnswerOption["type"][];
   testScores: PersonalityClass["type"][];
   otpToken?: string;
-  isEncrypted?: boolean;
-  encryptedData?: string;
 }
 
 type Extroverted = "E";
@@ -81,29 +78,6 @@ type Feeling = "F";
 type Perceiving = "P";
 
 type Judging = "J";
-
-const DB_NAME = "MBTI_PERSONALITY_TEST_APP_IDB";
-
-const DB_VERSION = 1;
-
-const TEST_RESULT_STORE = "TEST_RESULT_STORE";
-
-async function getDb() {
-  const db = await openDB<{
-    [TEST_RESULT_STORE]: {
-      key: number;
-      value: TestResult;
-    };
-  }>(DB_NAME, DB_VERSION, {
-    upgrade(idb) {
-      idb.createObjectStore(TEST_RESULT_STORE, {
-        keyPath: "timestamp",
-      });
-    },
-  });
-
-  return db;
-}
 
 export function getQuestionAnswerScore(
   questionNumber: number,
@@ -162,30 +136,12 @@ export function getPersonalityClassGroupByType(type: string): PersonalityClassGr
   return group;
 }
 
-export function getSavedTestResult(id: number) {
+export function getSavedTestResult(id: string) {
   return Future.make<Result<Option<TestResult>, Error>>((resolve) => {
-    getDb()
-      .then((db) => db.get(TEST_RESULT_STORE, id))
-      .then(Option.fromNullable)
-      .then((testResult) => {
-        if (testResult.isSome()) {
-          const data = testResult.get();
-          // 檢查是否為加密資料
-          if (data.isEncrypted && data.encryptedData) {
-            try {
-              const decryptedData = decryptData(data.encryptedData);
-              resolve(Result.Ok(Option.Some(decryptedData)));
-            } catch (error) {
-              console.error('解密測試結果失敗:', error);
-              resolve(Result.Error(new Error('資料解密失敗')));
-            }
-          } else {
-            // 舊版未加密資料
-            resolve(Result.Ok(testResult));
-          }
-        } else {
-          resolve(Result.Ok(testResult));
-        }
+    getAllTestResultsFromFirebase()
+      .then((results) => {
+        const testResult = results.find(result => result.id === id);
+        resolve(Result.Ok(Option.fromNullable(testResult)));
       })
       .catch((error) => resolve(Result.Error(error)));
   });
@@ -193,29 +149,15 @@ export function getSavedTestResult(id: number) {
 
 export function getAllSavedTestResult() {
   return Future.make<Result<Option<TestResult[]>, Error>>((resolve) => {
-    getDb()
-      .then((db) => db.getAll(TEST_RESULT_STORE))
-      .then(Option.fromNullable)
-      .then((testResults) => {
-        if (testResults.isSome()) {
-          const results = testResults.get();
-          try {
-            // 解密所有測試結果
-            const decryptedResults = results.map((data: any) => {
-              if (data.isEncrypted && data.encryptedData) {
-                return decryptData(data.encryptedData);
-              } else {
-                // 舊版未加密資料
-                return data;
-              }
-            });
-            resolve(Result.Ok(Option.Some(decryptedResults)));
-          } catch (error) {
-            resolve(Result.Error(new Error('資料解密失敗')));
-          }
-        } else {
-          resolve(Result.Ok(testResults));
-        }
+    getAllTestResultsFromFirebase()
+      .then((results) => {
+        const testResults = results.map(result => ({
+          timestamp: result.timestamp,
+          testAnswers: result.testAnswers,
+          testScores: result.testScores,
+          otpToken: result.otpToken
+        }));
+        resolve(Result.Ok(Option.Some(testResults)));
       })
       .catch((error) => resolve(Result.Error(error)));
   });
@@ -228,20 +170,14 @@ export function saveTestResult(testResult: {
   otpToken?: string;
 }) {
   return Future.make<Result<number, Error>>((resolve) => {
-    try {
-      // 加密測試結果
-      const encryptedResult = {
-        ...testResult,
-        encryptedData: encryptData(testResult),
-        isEncrypted: true
-      };
-
-      getDb()
-        .then((db) => db.put(TEST_RESULT_STORE, encryptedResult))
-        .then((id) => resolve(Result.Ok(id)))
-        .catch((error) => resolve(Result.Error(error)));
-    } catch (error) {
-      resolve(Result.Error(error instanceof Error ? error : new Error('加密失敗')));
-    }
+    saveTestResultToFirebase(testResult)
+      .then((success) => {
+        if (success) {
+          resolve(Result.Ok(testResult.timestamp));
+        } else {
+          resolve(Result.Error(new Error('儲存到 Firebase 失敗')));
+        }
+      })
+      .catch((error) => resolve(Result.Error(error)));
   });
 }
