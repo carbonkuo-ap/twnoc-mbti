@@ -106,6 +106,17 @@ export default function TestQuestion() {
             // Firebase 失敗不影響本地功能
           }
 
+          // 如果使用了 OTP token，標記為已使用
+          if (otpToken) {
+            try {
+              const otpLib = await import('../../lib/otp');
+              await otpLib.useOTPToken(otpToken, id);
+              console.log('OTP Token 已標記為使用');
+            } catch (otpError) {
+              console.warn('標記 OTP Token 使用失敗:', otpError);
+            }
+          }
+
           router.replace(`/test/result/?testResultId=${id}`);
         })
         .tapError((error) => {

@@ -1,6 +1,12 @@
 import { encryptData, decryptData } from './encryption';
 import { generateCSRFToken } from './security';
 import { logAuditEvent, AuditEventType } from './audit';
+import {
+  saveOTPTokenToFirebase,
+  getAllOTPTokensFromFirebase,
+  deleteOTPTokenFromFirebase,
+  updateOTPTokenUsageInFirebase
+} from './firebase';
 
 export interface OTPToken {
   token: string;
@@ -49,14 +55,22 @@ export function generateOTPToken(config?: Partial<OTPConfig>): OTPToken {
 /**
  * 儲存 OTP Token
  */
-export function saveOTPToken(token: OTPToken): void {
+export async function saveOTPToken(token: OTPToken): Promise<void> {
   try {
-    const tokens = getAllOTPTokens();
+    // 保存到本地
+    const tokens = getLocalOTPTokens();
     tokens.push(token);
-    
+
     const encrypted = encryptData(tokens);
     localStorage.setItem(OTP_STORAGE_KEY, encrypted);
-    
+
+    // 嘗試保存到 Firebase
+    try {
+      await saveOTPTokenToFirebase(token);
+    } catch (firebaseError) {
+      console.warn('Firebase 保存 OTP Token 失敗，但本地保存成功:', firebaseError);
+    }
+
     // 記錄審計日誌
     logAuditEvent(
       AuditEventType.ADMIN,
@@ -70,20 +84,60 @@ export function saveOTPToken(token: OTPToken): void {
 }
 
 /**
- * 獲取所有 OTP Tokens
+ * 獲取本地 OTP Tokens
  */
-export function getAllOTPTokens(): OTPToken[] {
+function getLocalOTPTokens(): OTPToken[] {
   try {
     const encrypted = localStorage.getItem(OTP_STORAGE_KEY);
     if (!encrypted) return [];
-    
+
     const tokens = decryptData<OTPToken[]>(encrypted);
     // 過濾掉已過期的 tokens
     return tokens.filter(token => token.expiresAt > Date.now());
   } catch (error) {
-    console.error('載入 OTP Tokens 失敗:', error);
+    console.error('載入本地 OTP Tokens 失敗:', error);
     return [];
   }
+}
+
+/**
+ * 獲取所有 OTP Tokens（本地 + Firebase）
+ */
+export async function getAllOTPTokens(): Promise<OTPToken[]> {
+  try {
+    // 獲取本地 tokens
+    const localTokens = getLocalOTPTokens();
+
+    // 嘗試獲取 Firebase tokens
+    let firebaseTokens: OTPToken[] = [];
+    try {
+      firebaseTokens = await getAllOTPTokensFromFirebase();
+    } catch (error) {
+      console.warn('獲取 Firebase OTP Tokens 失敗:', error);
+    }
+
+    // 合併並去重（以 token 字符串為準）
+    const allTokens = [...localTokens];
+    firebaseTokens.forEach(firebaseToken => {
+      const exists = allTokens.some(localToken => localToken.token === firebaseToken.token);
+      if (!exists) {
+        allTokens.push(firebaseToken);
+      }
+    });
+
+    // 按創建時間排序
+    return allTokens.sort((a, b) => b.createdAt - a.createdAt);
+  } catch (error) {
+    console.error('載入 OTP Tokens 失敗:', error);
+    return getLocalOTPTokens(); // fallback 到本地 tokens
+  }
+}
+
+/**
+ * 同步版本的獲取所有 OTP Tokens（向後兼容）
+ */
+export function getAllOTPTokensSync(): OTPToken[] {
+  return getLocalOTPTokens();
 }
 
 /**
@@ -91,7 +145,7 @@ export function getAllOTPTokens(): OTPToken[] {
  */
 export function validateOTPToken(tokenString: string): { valid: boolean; token?: OTPToken; error?: string } {
   try {
-    const tokens = getAllOTPTokens();
+    const tokens = getAllOTPTokensSync();
     const token = tokens.find(t => t.token === tokenString);
     
     if (!token) {
@@ -118,30 +172,38 @@ export function validateOTPToken(tokenString: string): { valid: boolean; token?:
 /**
  * 使用 OTP Token
  */
-export function useOTPToken(tokenString: string, testResultId?: number): boolean {
+export async function useOTPToken(tokenString: string, testResultId?: number): Promise<boolean> {
   try {
     const validation = validateOTPToken(tokenString);
     if (!validation.valid || !validation.token) {
       return false;
     }
-    
-    const tokens = getAllOTPTokens();
+
+    // 更新本地
+    const tokens = getLocalOTPTokens();
     const tokenIndex = tokens.findIndex(t => t.token === tokenString);
-    
+
     if (tokenIndex !== -1) {
       tokens[tokenIndex].usedAt = Date.now();
       if (testResultId) {
         tokens[tokenIndex].testResultId = testResultId;
       }
-      
+
       const encrypted = encryptData(tokens);
       localStorage.setItem(OTP_STORAGE_KEY, encrypted);
-      
+
+      // 嘗試更新 Firebase
+      try {
+        await updateOTPTokenUsageInFirebase(tokenString, testResultId);
+      } catch (firebaseError) {
+        console.warn('Firebase 更新 OTP Token 失敗，但本地更新成功:', firebaseError);
+      }
+
       // 記錄審計日誌
       logAuditEvent(
         AuditEventType.AUTH,
         'use_otp',
-        { 
+        {
           token: tokenString.substring(0, 8) + '...', 
           testResultId,
           success: true 
@@ -161,9 +223,10 @@ export function useOTPToken(tokenString: string, testResultId?: number): boolean
 /**
  * 刪除 OTP Token
  */
-export function deleteOTPToken(tokenString: string): boolean {
+export async function deleteOTPToken(tokenString: string): Promise<boolean> {
   try {
-    const tokens = getAllOTPTokens();
+    // 刪除本地
+    const tokens = getLocalOTPTokens();
     const filteredTokens = tokens.filter(t => t.token !== tokenString);
     
     if (tokens.length === filteredTokens.length) {
@@ -172,14 +235,21 @@ export function deleteOTPToken(tokenString: string): boolean {
     
     const encrypted = encryptData(filteredTokens);
     localStorage.setItem(OTP_STORAGE_KEY, encrypted);
-    
+
+    // 嘗試從 Firebase 刪除
+    try {
+      await deleteOTPTokenFromFirebase(tokenString);
+    } catch (firebaseError) {
+      console.warn('Firebase 刪除 OTP Token 失敗，但本地刪除成功:', firebaseError);
+    }
+
     // 記錄審計日誌
     logAuditEvent(
       AuditEventType.ADMIN,
       'delete_otp',
       { token: tokenString.substring(0, 8) + '...' }
     );
-    
+
     return true;
   } catch (error) {
     console.error('刪除 OTP Token 失敗:', error);
@@ -192,7 +262,7 @@ export function deleteOTPToken(tokenString: string): boolean {
  */
 export function cleanupExpiredOTPTokens(): number {
   try {
-    const tokens = getAllOTPTokens();
+    const tokens = getLocalOTPTokens();
     const activeTokens = tokens.filter(token => token.expiresAt > Date.now());
     const cleanedCount = tokens.length - activeTokens.length;
     

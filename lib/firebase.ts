@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, push, set, get, onValue, off, query, orderByChild, limitToLast, DataSnapshot } from 'firebase/database';
+import { getDatabase, ref, push, set, get, onValue, off, query, orderByChild, limitToLast, DataSnapshot, update, remove } from 'firebase/database';
 import { TestResult } from './personality-test';
 import { OTPToken } from './otp';
 
@@ -261,6 +261,100 @@ export async function testFirebaseConnection(): Promise<boolean> {
     return snapshot.val() === true;
   } catch (error) {
     console.error('測試 Firebase 連接失敗:', error);
+    return false;
+  }
+}
+
+// 儲存 OTP Token 到 Firebase
+export async function saveOTPTokenToFirebase(token: OTPToken): Promise<boolean> {
+  try {
+    if (!database) {
+      console.error('Firebase 未初始化');
+      return false;
+    }
+
+    const otpRef = ref(database, `otpTokens/${token.token}`);
+    await set(otpRef, {
+      ...token,
+      syncedAt: Date.now()
+    });
+
+    console.log('OTP Token 已保存到 Firebase:', token.token.substring(0, 8) + '...');
+    return true;
+  } catch (error) {
+    console.error('保存 OTP Token 到 Firebase 失敗:', error);
+    return false;
+  }
+}
+
+// 從 Firebase 獲取所有 OTP Tokens
+export async function getAllOTPTokensFromFirebase(): Promise<OTPToken[]> {
+  try {
+    if (!database) {
+      console.error('Firebase 未初始化');
+      return [];
+    }
+
+    const otpRef = ref(database, 'otpTokens');
+    const snapshot = await get(otpRef);
+
+    if (snapshot.exists()) {
+      const tokens: OTPToken[] = [];
+      snapshot.forEach((childSnapshot) => {
+        const tokenData = childSnapshot.val();
+        // 移除 syncedAt 屬性，只保留 OTPToken 屬性
+        const { syncedAt, ...otpToken } = tokenData;
+        tokens.push(otpToken);
+      });
+
+      // 過濾掉已過期的 tokens
+      return tokens.filter(token => token.expiresAt > Date.now());
+    }
+
+    return [];
+  } catch (error) {
+    console.error('從 Firebase 獲取 OTP Tokens 失敗:', error);
+    return [];
+  }
+}
+
+// 刪除 Firebase 中的 OTP Token
+export async function deleteOTPTokenFromFirebase(tokenString: string): Promise<boolean> {
+  try {
+    if (!database) {
+      console.error('Firebase 未初始化');
+      return false;
+    }
+
+    const otpRef = ref(database, `otpTokens/${tokenString}`);
+    await remove(otpRef);
+
+    console.log('OTP Token 已從 Firebase 刪除:', tokenString.substring(0, 8) + '...');
+    return true;
+  } catch (error) {
+    console.error('從 Firebase 刪除 OTP Token 失敗:', error);
+    return false;
+  }
+}
+
+// 更新 OTP Token 使用狀態到 Firebase
+export async function updateOTPTokenUsageInFirebase(tokenString: string, testResultId?: number): Promise<boolean> {
+  try {
+    if (!database) {
+      console.error('Firebase 未初始化');
+      return false;
+    }
+
+    const otpRef = ref(database, `otpTokens/${tokenString}`);
+    await update(otpRef, {
+      usedAt: Date.now(),
+      testResultId: testResultId
+    });
+
+    console.log('OTP Token 使用狀態已更新到 Firebase:', tokenString.substring(0, 8) + '...');
+    return true;
+  } catch (error) {
+    console.error('更新 OTP Token 使用狀態到 Firebase 失敗:', error);
     return false;
   }
 }

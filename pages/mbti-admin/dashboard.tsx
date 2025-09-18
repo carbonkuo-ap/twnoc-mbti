@@ -52,10 +52,16 @@ import {
   TabList,
   TabPanels,
   Tab,
-  TabPanel
+  TabPanel,
+  SimpleGrid,
+  UnorderedList,
+  ListItem,
+  Wrap,
+  WrapItem
 } from '@chakra-ui/react';
 import { FiUsers, FiActivity, FiBarChart, FiLogOut, FiKey, FiCopy, FiTrash2, FiCode, FiDownload, FiUpload } from 'react-icons/fi';
 import dayjs from 'dayjs';
+import { personalityTypeDescriptions } from '../../data/personality-descriptions';
 import { isAuthenticated, logoutAdmin, getAdminSession, AdminUser } from '../../lib/auth';
 import {
   getAllSavedTestResult,
@@ -104,10 +110,12 @@ export default function AdminDashboard() {
   const [firebaseConnected, setFirebaseConnected] = useState(false);
   const [firebaseTests, setFirebaseTests] = useState<FirebaseTestResult[]>([]);
   const [otpUsageStats, setOtpUsageStats] = useState<{ [token: string]: number }>({});
+  const [selectedPersonalityType, setSelectedPersonalityType] = useState<string>('');
   const router = useRouter();
   const toast = useToast();
   const { isOpen: isOtpModalOpen, onOpen: onOtpModalOpen, onClose: onOtpModalClose } = useDisclosure();
   const { isOpen: isImportModalOpen, onOpen: onImportModalOpen, onClose: onImportModalClose } = useDisclosure();
+  const { isOpen: isReportModalOpen, onOpen: onReportModalOpen, onClose: onReportModalClose } = useDisclosure();
 
   useEffect(() => {
     // 檢查認證狀態
@@ -189,9 +197,9 @@ export default function AdminDashboard() {
     }
   };
 
-  const loadOTPData = () => {
+  const loadOTPData = async () => {
     try {
-      const tokens = getAllOTPTokens();
+      const tokens = await getAllOTPTokens();
       const stats = getOTPStatistics();
       setOtpTokens(tokens);
       setOtpStats(stats);
@@ -200,7 +208,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleCreateOTP = () => {
+  const handleCreateOTP = async () => {
     try {
       const token = generateOTPToken({
         expirationDays: newOtpDays
@@ -213,8 +221,8 @@ export default function AdminDashboard() {
         };
       }
 
-      saveOTPToken(token);
-      loadOTPData();
+      await saveOTPToken(token);
+      await loadOTPData();
 
       toast({
         title: 'OTP Token 創建成功',
@@ -240,11 +248,11 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteOTP = (token: string) => {
+  const handleDeleteOTP = async (token: string) => {
     try {
-      const success = deleteOTPToken(token);
+      const success = await deleteOTPToken(token);
       if (success) {
-        loadOTPData();
+        await loadOTPData();
         toast({
           title: 'OTP Token 已刪除',
           status: 'info',
@@ -427,9 +435,8 @@ export default function AdminDashboard() {
   };
 
   const handlePersonalityTypeClick = (personalityType: string) => {
-    // 開啟新分頁顯示人格類型報告
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
-    window.open(`${basePath}/report?type=${personalityType}`, '_blank');
+    setSelectedPersonalityType(personalityType);
+    onReportModalOpen();
   };
 
   const CopyUrlButton = ({ token }: { token: string }) => {
@@ -500,8 +507,8 @@ export default function AdminDashboard() {
     router.push('./index');
   };
 
-  const formatDate = (dateString: string) => {
-    return dayjs(dateString).format('YYYY/MM/DD HH:mm');
+  const formatDate = (timestamp: string | number) => {
+    return dayjs(Number(timestamp)).format('YYYY/MM/DD HH:mm');
   };
 
   const getTypeColor = (type: string) => {
@@ -857,8 +864,8 @@ export default function AdminDashboard() {
                                       {token.token.substring(0, 8)}...
                                     </Text>
                                   </Td>
-                                  <Td>{formatDate(token.createdAt.toString())}</Td>
-                                  <Td>{formatDate(token.expiresAt.toString())}</Td>
+                                  <Td>{formatDate(token.createdAt)}</Td>
+                                  <Td>{formatDate(token.expiresAt)}</Td>
                                   <Td>
                                     <Badge
                                       colorScheme={
@@ -990,6 +997,81 @@ export default function AdminDashboard() {
               <Button variant="ghost" mr={3} onClick={onImportModalClose}>
                 取消
               </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        {/* 人格報告 Modal */}
+        <Modal isOpen={isReportModalOpen} onClose={onReportModalClose} size="6xl">
+          <ModalOverlay />
+          <ModalContent maxW="80vw" maxH="90vh">
+            <ModalHeader>
+              <HStack spacing={3}>
+                <Badge colorScheme={getTypeColor(selectedPersonalityType)} fontSize="lg" p={2}>
+                  {selectedPersonalityType}
+                </Badge>
+                <Text fontSize="xl">
+                  {personalityTypeDescriptions[selectedPersonalityType]?.name || ''}
+                </Text>
+              </HStack>
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody overflowY="auto">
+              {selectedPersonalityType && personalityTypeDescriptions[selectedPersonalityType] && (
+                <VStack align="stretch" spacing={6}>
+                  <Box>
+                    <Heading size="md" mb={3} color="blue.600">📖 性格描述</Heading>
+                    <Text fontSize="lg" lineHeight="1.8">
+                      {personalityTypeDescriptions[selectedPersonalityType].description}
+                    </Text>
+                  </Box>
+
+                  <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
+                    <Box>
+                      <Heading size="md" mb={3} color="green.600">💪 主要優點</Heading>
+                      <UnorderedList spacing={2}>
+                        {personalityTypeDescriptions[selectedPersonalityType].strengths.map((strength, index) => (
+                          <ListItem key={index} fontSize="md">{strength}</ListItem>
+                        ))}
+                      </UnorderedList>
+                    </Box>
+
+                    <Box>
+                      <Heading size="md" mb={3} color="orange.600">⚠️ 需要改進</Heading>
+                      <UnorderedList spacing={2}>
+                        {personalityTypeDescriptions[selectedPersonalityType].weaknesses.map((weakness, index) => (
+                          <ListItem key={index} fontSize="md">{weakness}</ListItem>
+                        ))}
+                      </UnorderedList>
+                    </Box>
+                  </SimpleGrid>
+
+                  <Box>
+                    <Heading size="md" mb={3} color="purple.600">💼 適合職業</Heading>
+                    <Wrap spacing={2}>
+                      {personalityTypeDescriptions[selectedPersonalityType].careers.map((career, index) => (
+                        <WrapItem key={index}>
+                          <Badge colorScheme="purple" variant="outline" fontSize="sm" p={2}>
+                            {career}
+                          </Badge>
+                        </WrapItem>
+                      ))}
+                    </Wrap>
+                  </Box>
+
+                  <Box>
+                    <Heading size="md" mb={3} color="pink.600">❤️ 人際關係建議</Heading>
+                    <UnorderedList spacing={2}>
+                      {personalityTypeDescriptions[selectedPersonalityType].relationships.map((relationship, index) => (
+                        <ListItem key={index} fontSize="md">{relationship}</ListItem>
+                      ))}
+                    </UnorderedList>
+                  </Box>
+                </VStack>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              <Button onClick={onReportModalClose}>關閉</Button>
             </ModalFooter>
           </ModalContent>
         </Modal>
