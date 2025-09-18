@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import {
   Box,
   Button,
@@ -149,7 +150,14 @@ export default function AdminLogin() {
   };
 
   return (
-    <Container maxW="md" py={20}>
+    <>
+      <Head>
+        <title>MBTI 管理後台 - 登入</title>
+        <meta name="description" content="MBTI 管理後台登入頁面" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/favicon.ico`} />
+      </Head>
+      <Container maxW="md" py={20}>
       <Card>
         <CardBody>
           <VStack spacing={6}>
@@ -233,6 +241,7 @@ export default function AdminLogin() {
           </VStack>
         </CardBody>
       </Card>
-    </Container>
+      </Container>
+    </>
   );
 }

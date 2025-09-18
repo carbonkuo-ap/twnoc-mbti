@@ -25,7 +25,7 @@ export default function MainLayout(props: MainLayoutProps) {
         />
         <link
           rel="icon"
-          href="/favicon.ico"
+          href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/favicon.ico`}
         />
       </Head>
       <Box

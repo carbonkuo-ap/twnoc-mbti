@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import {
   Box,
   Button,
@@ -109,6 +110,7 @@ export default function AdminDashboard() {
   const [otpStats, setOtpStats] = useState({ total: 0, active: 0, used: 0, expired: 0 });
   const [newOtpDays, setNewOtpDays] = useState(7);
   const [newOtpDescription, setNewOtpDescription] = useState('');
+  const [newOtpSubjectName, setNewOtpSubjectName] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [firebaseConnected, setFirebaseConnected] = useState(false);
@@ -222,10 +224,11 @@ export default function AdminDashboard() {
         expirationDays: newOtpDays
       });
 
-      if (newOtpDescription.trim()) {
+      if (newOtpDescription.trim() || newOtpSubjectName.trim()) {
         token.metadata = {
           ...token.metadata,
-          description: newOtpDescription.trim()
+          description: newOtpDescription.trim(),
+          subjectName: newOtpSubjectName.trim()
         };
       }
 
@@ -243,6 +246,7 @@ export default function AdminDashboard() {
       // 重置表單
       setNewOtpDays(7);
       setNewOtpDescription('');
+      setNewOtpSubjectName('');
       onOtpModalClose();
     } catch (error) {
       console.error('創建 OTP Token 失敗:', error);
@@ -578,7 +582,14 @@ export default function AdminDashboard() {
 
 
   return (
-    <Container maxW="6xl" py={8}>
+    <>
+      <Head>
+        <title>MBTI 管理後台 - 儀表板</title>
+        <meta name="description" content="MBTI 測試管理後台儀表板" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/favicon.ico`} />
+      </Head>
+      <Container maxW="6xl" py={8}>
       <VStack spacing={6} align="stretch">
         {/* 頁面標題 */}
         <Flex justify="space-between" align="center">
@@ -903,6 +914,7 @@ export default function AdminDashboard() {
                             <Thead>
                               <Tr>
                                 <Th>Token</Th>
+                                <Th>受試者</Th>
                                 <Th>建立時間</Th>
                                 <Th>過期時間</Th>
                                 <Th>狀態</Th>
@@ -915,6 +927,11 @@ export default function AdminDashboard() {
                                   <Td>
                                     <Text fontFamily="mono" fontSize="sm">
                                       {token.token.substring(0, 8)}...
+                                    </Text>
+                                  </Td>
+                                  <Td>
+                                    <Text fontSize="sm">
+                                      {token.metadata?.subjectName || '-'}
                                     </Text>
                                   </Td>
                                   <Td>{formatDate(token.createdAt)}</Td>
@@ -976,6 +993,15 @@ export default function AdminDashboard() {
             <ModalBody>
               <VStack spacing={4}>
                 <FormControl>
+                  <FormLabel>受試者姓名</FormLabel>
+                  <Input
+                    value={newOtpSubjectName}
+                    onChange={(e) => setNewOtpSubjectName(e.target.value)}
+                    placeholder="請輸入受試者姓名"
+                  />
+                </FormControl>
+
+                <FormControl>
                   <FormLabel>有效天數</FormLabel>
                   <NumberInput
                     value={newOtpDays}
@@ -996,7 +1022,7 @@ export default function AdminDashboard() {
                   <Textarea
                     value={newOtpDescription}
                     onChange={(e) => setNewOtpDescription(e.target.value)}
-                    placeholder="例如：張三的測試授權"
+                    placeholder="例如：心理測試、員工評估等"
                     rows={3}
                   />
                 </FormControl>
@@ -1254,6 +1280,7 @@ export default function AdminDashboard() {
           </ModalContent>
         </Modal>
       </VStack>
-    </Container>
+      </Container>
+    </>
   );
 }

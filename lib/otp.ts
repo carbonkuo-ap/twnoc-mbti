@@ -18,6 +18,7 @@ export interface OTPToken {
     description?: string;
     createdBy?: string;
     allowMultipleUse?: boolean;
+    subjectName?: string;
   };
 }
 
