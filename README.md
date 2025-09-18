@@ -5,16 +5,22 @@
 本專案實作了 MBTI（Myers-Briggs Type Indicator）性格測試，透過一系列問題，幫助使用者瞭解自己的個性特徵，並確定他們的 MBTI 類型。MBTI 將個性分為四個維度，最終組合出 16 種性格類型，使用者可根據測試結果瞭解更多關於自己的資訊。
 
 ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-brightgreen)
+![Firebase](https://img.shields.io/badge/Firebase-Realtime%20Database-orange)
+![OTP](https://img.shields.io/badge/OTP-Token%20Protected-blue)
 
 部署在 GitHub Pages，造訪網址：[https://carbonkuo-ap.github.io/twnoc-mbti/](https://carbonkuo-ap.github.io/twnoc-mbti/)
+
+**🔒 注意：本系統需要有效的 OTP Token 才能開始測試**
 
 ## 功能特性
 
 ### 🧠 核心測驗功能
+- **🔒 OTP 授權驗證**：所有測試必須使用有效的 OTP Token 才能開始
 - **16 種 MBTI 類型**：透過測試瞭解您屬於哪種 MBTI 類型（如：INTJ、ENFP）
 - **使用者友好界面**：簡潔直觀的設計，引導使用者完成測試問題，支援點擊動畫反饋
 - **結果展示**：測試結果展示您的 MBTI 類型，並提供詳細的性格描述
 - **行動裝置相容**：支援桌電和行動裝置的存取
+- **URL 自動驗證**：支援透過 URL 參數自動填入 OTP Token
 
 ### 🔐 管理後台功能
 - **隱藏管理介面**：位於 `/mbti-admin` 的安全管理後台
@@ -28,16 +34,17 @@
 - **跨設備分享**：透過 URL 連結分享，任何設備都能存取
 - **使用追蹤**：追蹤每個 Token 的使用次數和狀態
 
-### ☁️ 跨設備資料同步
-- **Firebase 整合**：雲端資料庫即時同步所有測試結果
-- **統一資料管理**：不管從哪個設備測試，都能在管理後台查看
-- **即時監控**：測試完成後立即在管理後台顯示
-- **雙重備份**：同時儲存到本地和雲端，確保資料安全
+### ☁️ Firebase 雲端架構
+- **Firebase Realtime Database**：所有資料完全儲存在雲端
+- **即時同步**：測試結果立即同步到雲端資料庫
+- **跨設備存取**：管理員可從任何設備存取完整資料
+- **安全性保障**：移除本地儲存，避免資料同步衝突
 
 ### 📊 資料管理功能
-- **匯出/匯入**：JSON 格式的完整資料備份與還原
-- **資料加密**：所有敏感資料都經過 AES 加密保護
+- **Firebase 匯出**：從 Firebase 匯出完整測試記錄
+- **OTP 管理**：完整的 Token 生命週期管理
 - **審計日誌**：完整記錄所有操作歷史
+- **統計分析**：即時顯示測試統計和 OTP 使用情況
 
 ## 技術堆疊
 
@@ -46,11 +53,16 @@
 - **前端框架**: Next.js 13 (Static Export)
 - **UI 元件庫**: Chakra UI
 - **狀態管理**: Zustand
-- **本地存儲**: IndexedDB (透過 idb)
-- **雲端同步**: Firebase Realtime Database
+- **雲端資料庫**: Firebase Realtime Database (主要儲存)
 - **資料安全**: AES 加密 + PBKDF2 雜湊
-- **認證系統**: TOTP 雙因素認證
+- **授權系統**: OTP (One-Time Password) Token 驗證
 - **部署平台**: GitHub Pages
+
+### 🔄 架構變更 (v2.0)
+- ✅ **移除本地儲存依賴**: 不再使用 IndexedDB/localStorage
+- ✅ **Firebase-only 架構**: 所有資料統一存放在 Firebase
+- ✅ **簡化認證**: 移除 TOTP 雙因素認證，改用 OTP Token
+- ✅ **強制授權**: 所有測試都需要有效的 OTP Token
 
 ## 本地運行
 
@@ -80,14 +92,20 @@
    # 編輯 .env.local 設定管理後台和 Firebase 配置
    ```
 
-   基本設定（管理後台）：
+   **必要設定**：
    - `NEXT_PUBLIC_ADMIN_USERNAME`: 管理員帳號
    - `NEXT_PUBLIC_ADMIN_HASH`: 管理員密碼雜湊
    - `NEXT_PUBLIC_ADMIN_SALT`: 密碼加密鹽值
+   - `NEXT_PUBLIC_ENCRYPTION_KEY`: 資料加密金鑰
 
-   進階設定（跨設備同步）：
-   - Firebase 相關配置（可選，用於跨設備資料同步）
+   **Firebase 設定（必要）**：
+   - `NEXT_PUBLIC_FIREBASE_DATABASE_URL`: Firebase Realtime Database URL
+   - `NEXT_PUBLIC_FIREBASE_API_KEY`: Firebase API 金鑰
+   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: Firebase 專案 ID
+   - 其他 Firebase 配置參數
    - 詳細設定請參考 [Firebase 設定指南](docs/FIREBASE_SETUP.md)
+
+   **⚠️ 重要：由於採用 Firebase-only 架構，Firebase 配置為必要設定，否則系統無法正常運作。**
 
 5. **存取應用程式**：
    在瀏覽器中開啟主控台輸出的連結，存取應用程式。
@@ -99,7 +117,7 @@
 ### 存取方式
 
 - **網址**：`/mbti-admin`
-- **認證**：管理員帳號密碼 + TOTP 雙因素認證
+- **認證**：管理員帳號密碼（已移除 TOTP 雙因素認證）
 
 ### 核心功能
 
@@ -115,15 +133,15 @@
 - **批次管理**：刪除、清理過期 Token
 
 #### 📋 測試記錄管理
-- **完整記錄**：查看所有本地和雲端測試資料
-- **來源標示**：清楚顯示測試來源（Firebase/本地）
+- **Firebase 資料**：查看所有 Firebase 雲端測試資料
 - **OTP 追蹤**：顯示使用哪個 Token 進行的測試
 - **可點擊報告**：點擊人格類型可查看標準化報告
+- **即時更新**：測試完成後立即在後台顯示
 
 #### 💾 資料管理
-- **匯出功能**：JSON 格式的完整資料備份
-- **匯入功能**：從備份檔案還原資料
-- **雙重儲存**：本地 + Firebase 雲端同步
+- **匯出功能**：從 Firebase 匯出 JSON 格式的完整資料
+- **雲端同步**：所有資料即時同步到 Firebase
+- **統計報表**：測試次數、OTP 使用率等統計資訊
 
 ### 使用流程
 
@@ -183,11 +201,18 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 ## 🔒 安全性
 
 本專案實作了多層次安全機制，包括：
-- 🔐 雙因素認證 (2FA)
-- 🛡️ 登入防護與速率限制
-- 🔒 資料加密儲存
-- 📊 審計日誌記錄
-- 🚨 會話安全管理
+- 🎯 **OTP Token 授權**：強制性的一次性密碼驗證
+- 🛡️ **登入防護與速率限制**：防止暴力破解攻擊
+- 🔒 **資料加密儲存**：敏感資料 AES 加密保護
+- 📊 **審計日誌記錄**：完整記錄所有操作歷史
+- 🚨 **會話安全管理**：安全的管理員會話控制
+- ☁️ **Firebase 安全規則**：雲端資料庫存取控制
+
+### 🔄 安全性改進 (v2.0)
+- ✅ **簡化認證流程**：移除複雜的 TOTP 雙因素認證
+- ✅ **統一授權機制**：所有測試使用 OTP Token 驗證
+- ✅ **雲端安全**：Firebase 原生安全機制保護
+- ✅ **減少攻擊面**：移除本地儲存相關安全風險
 
 詳細的安全功能說明、配置指南和最佳實踐，請參考 **[安全性文件](docs/SECURITY.md)**。
 

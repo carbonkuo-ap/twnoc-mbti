@@ -79,7 +79,13 @@ export default function HomePage() {
           <VStack spacing={6} w="full" maxW="400px">
             <Box w="full">
               <FormControl>
-                <FormLabel textAlign="center" mb={3}>
+                <FormLabel
+                  textAlign="center"
+                  mb={3}
+                  fontSize="md"
+                  fontWeight="bold"
+                  color="gray.700"
+                >
                   輸入 OTP Token (必填)
                 </FormLabel>
                 <Input
@@ -88,6 +94,13 @@ export default function HomePage() {
                   placeholder="請輸入您的 OTP Token"
                   textAlign="center"
                   size="lg"
+                  bg="white"
+                  border="2px solid"
+                  borderColor="gray.300"
+                  _focus={{
+                    borderColor: "primary.500",
+                    boxShadow: "0 0 0 1px var(--chakra-colors-primary-500)"
+                  }}
                 />
               </FormControl>
             </Box>

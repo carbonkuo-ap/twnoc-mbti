@@ -231,6 +231,12 @@ export default function AdminDashboard() {
 
   const handleCreateOTP = async () => {
     try {
+      // 檢查 Firebase 連接
+      const { isFirebaseConnected } = await import('../../lib/firebase');
+      if (!isFirebaseConnected()) {
+        throw new Error('Firebase 未初始化，請檢查環境配置');
+      }
+
       const token = generateOTPToken({
         expirationDays: newOtpDays
       });
@@ -259,11 +265,23 @@ export default function AdminDashboard() {
       onOtpModalClose();
     } catch (error) {
       console.error('創建 OTP Token 失敗:', error);
+
+      let errorMessage = '無法創建 OTP Token';
+      if (error instanceof Error) {
+        if (error.message.includes('Firebase')) {
+          errorMessage = 'Firebase 連接失敗，請檢查網路連接和配置';
+        } else if (error.message.includes('Permission denied')) {
+          errorMessage = 'Firebase 權限不足，請檢查安全規則';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       toast({
         title: '創建失敗',
-        description: '無法創建 OTP Token',
+        description: errorMessage,
         status: 'error',
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
     }

@@ -41,7 +41,8 @@ export default function TestDisplay() {
 
   function handleOTPModalClose() {
     // 如果用戶關閉 OTP 模態而沒有驗證，返回首頁
-    window.location.href = '/';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_PATH || '';
+    window.location.href = `${baseUrl}/`;
   }
 
   return (

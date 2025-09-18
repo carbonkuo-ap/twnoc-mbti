@@ -1,14 +1,22 @@
 # Firebase 設定指南
 
-這份指南將幫助您設定 Firebase Realtime Database 來實現跨設備資料同步功能。
+這份指南將幫助您設定 Firebase Realtime Database，這是 v2.0 系統運行的**必要條件**。
 
 ## 🎯 功能說明
 
-設定 Firebase 後，您的 MBTI 測驗系統將具備以下功能：
-- **跨設備資料同步**：所有測試結果都會儲存到雲端
-- **即時管理監控**：管理後台能即時查看所有設備的測試記錄
-- **OTP 使用追蹤**：追蹤每個授權 Token 的使用情況
-- **統一資料管理**：不管從哪個設備做測試，都能在管理後台查看
+Firebase 是 v2.0 系統的核心儲存服務，提供以下功能：
+- **主要資料儲存**：所有測試結果和 OTP Token 都儲存在雲端
+- **即時同步**：測試完成後立即同步到雲端資料庫
+- **跨設備存取**：管理員可從任何設備存取完整資料
+- **OTP 管理**：完整的 Token 生命週期管理
+- **安全性保障**：雲端原生安全機制
+
+## ⚠️ 重要提醒
+
+**v2.0 系統完全依賴 Firebase**：
+- 沒有 Firebase 配置，系統無法正常運行
+- 不再支援本地 IndexedDB 儲存
+- 所有測試和管理功能都需要 Firebase 連接
 
 ## 📋 設定步驟
 
@@ -41,16 +49,29 @@
     "testResults": {
       ".read": true,
       ".write": true,
-      ".indexOn": ["timestamp", "completedAt"]
+      ".indexOn": ["timestamp", "completedAt", "otpToken"]
+    },
+    "otpTokens": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["createdAt", "expiresAt", "usedAt"]
     },
     "otpUsage": {
       ".read": true,
       ".write": true,
-      ".indexOn": ["usedAt"]
+      ".indexOn": ["usedAt", "token"]
     }
   }
 }
 ```
+
+### v2.0 資料結構說明
+
+新版本的資料結構包含三個主要節點：
+
+1. **testResults**: 儲存所有測試結果
+2. **otpTokens**: 儲存 OTP Token 資訊
+3. **otpUsage**: 儲存 Token 使用記錄
 
 3. 點擊「發布」
 
