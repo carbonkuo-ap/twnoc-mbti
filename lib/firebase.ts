@@ -366,3 +366,22 @@ export async function updateOTPTokenUsageInFirebase(tokenString: string, testRes
     return false;
   }
 }
+
+// 刪除測試結果從 Firebase
+export async function deleteTestResultFromFirebase(testResultId: string): Promise<boolean> {
+  try {
+    if (!database) {
+      console.error('Firebase 未初始化');
+      return false;
+    }
+
+    const testResultRef = ref(database, `testResults/${testResultId}`);
+    await remove(testResultRef);
+
+    console.log('測試結果已從 Firebase 刪除:', testResultId);
+    return true;
+  } catch (error) {
+    console.error('從 Firebase 刪除測試結果失敗:', error);
+    return false;
+  }
+}

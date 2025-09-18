@@ -78,7 +78,8 @@ import {
   subscribeToTestResults,
   FirebaseTestResult,
   isFirebaseConnected,
-  getAllOTPUsageStats
+  getAllOTPUsageStats,
+  deleteTestResultFromFirebase
 } from '../../lib/firebase';
 import {
   generateOTPToken,
@@ -449,6 +450,44 @@ export default function AdminDashboard() {
     onReportModalOpen();
   };
 
+  const handleDeleteTestResult = async (testId: string) => {
+    if (!confirm('確定要刪除這筆測試記錄嗎？此操作無法復原。')) {
+      return;
+    }
+
+    try {
+      const success = await deleteTestResultFromFirebase(testId);
+      if (success) {
+        toast({
+          title: '測試記錄已刪除',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+
+        // 重新載入資料
+        loadDashboardData();
+      } else {
+        toast({
+          title: '刪除失敗',
+          description: '無法刪除測試記錄',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.error('刪除測試記錄失敗:', error);
+      toast({
+        title: '刪除失敗',
+        description: '刪除過程中發生錯誤',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   const CopyUrlButton = ({ token }: { token: string }) => {
     const url = generateShareableOTPUrl(token);
     const { onCopy, hasCopied } = useClipboard(url);
@@ -764,13 +803,23 @@ export default function AdminDashboard() {
                                     )}
                                   </Td>
                                   <Td>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => handlePersonalityTypeClick(personalityClassGroup.type, test.testScores)}
-                                    >
-                                      查看報告
-                                    </Button>
+                                    <HStack spacing={2}>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handlePersonalityTypeClick(personalityClassGroup.type, test.testScores)}
+                                      >
+                                        查看報告
+                                      </Button>
+                                      <IconButton
+                                        icon={<Icon as={FiTrash2} />}
+                                        aria-label="刪除記錄"
+                                        size="sm"
+                                        colorScheme="red"
+                                        variant="outline"
+                                        onClick={() => handleDeleteTestResult(firebaseTest.id || '')}
+                                      />
+                                    </HStack>
                                   </Td>
                                 </Tr>
                               );

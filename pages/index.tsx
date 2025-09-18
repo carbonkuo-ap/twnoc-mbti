@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {
   Heading,
@@ -22,6 +22,16 @@ import MainLayout from "../components/layouts/main-layout";
 export default function HomePage() {
   const [otpToken, setOtpToken] = useState('');
   const router = useRouter();
+
+  // 自動從 URL 填入 OTP
+  useEffect(() => {
+    if (router.isReady) {
+      const urlOtp = router.query.otp as string;
+      if (urlOtp && urlOtp.trim() !== '') {
+        setOtpToken(urlOtp.trim());
+      }
+    }
+  }, [router.isReady, router.query.otp]);
 
   const handleStartTestWithOTP = () => {
     if (otpToken.trim()) {

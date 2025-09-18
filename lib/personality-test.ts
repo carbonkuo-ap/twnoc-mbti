@@ -140,7 +140,7 @@ export function getSavedTestResult(id: string) {
   return Future.make<Result<Option<TestResult>, Error>>((resolve) => {
     getAllTestResultsFromFirebase()
       .then((results) => {
-        const testResult = results.find(result => result.id === id);
+        const testResult = results.find(result => result.timestamp.toString() === id);
         resolve(Result.Ok(Option.fromNullable(testResult)));
       })
       .catch((error) => resolve(Result.Error(error)));
