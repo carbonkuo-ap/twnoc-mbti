@@ -20,7 +20,16 @@ import {
   Container
 } from '@chakra-ui/react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { isAuthenticated, createAdminSession } from '../../lib/auth';
+import { isAuthenticated, createAdminSession, validateAdminCredentials } from '../../lib/auth';
+import {
+  recordLoginFailure,
+  recordLoginSuccess,
+  isLoginBlocked,
+  shouldShowCaptcha,
+  getLoginDelay,
+  formatRemainingTime
+} from '../../lib/login-protection';
+import Captcha from '../../components/admin/Captcha';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -28,35 +37,80 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [captchaValue, setCaptchaValue] = useState('');
+  const [captchaValid, setCaptchaValid] = useState(false);
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const router = useRouter();
   const toast = useToast();
 
   useEffect(() => {
     // 如果已經登入，直接跳轉到儀表板
-    if (isAuthenticated()) {
-      router.push('/mbti-admin/dashboard');
+    const checkAuth = async () => {
+      if (await isAuthenticated()) {
+        router.push('/mbti-admin/dashboard');
+      }
+    };
+    checkAuth();
+
+    // 檢查是否需要顯示驗證碼
+    setShowCaptcha(shouldShowCaptcha());
+
+    // 檢查是否被封鎖
+    const blockStatus = isLoginBlocked();
+    if (blockStatus.blocked && blockStatus.remainingTime) {
+      setCountdown(Math.ceil(blockStatus.remainingTime / 1000));
+      setError(`帳號已被鎖定，請等待 ${formatRemainingTime(blockStatus.remainingTime)} 後再試`);
     }
   }, [router]);
 
+  // 倒數計時器
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+        if (countdown === 1) {
+          setError('');
+          setShowCaptcha(shouldShowCaptcha());
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 檢查是否被封鎖
+    const blockStatus = isLoginBlocked();
+    if (blockStatus.blocked) {
+      setError(`帳號已被鎖定，請等待 ${formatRemainingTime(blockStatus.remainingTime || 0)} 後再試`);
+      return;
+    }
+
+    // 檢查驗證碼
+    if (showCaptcha && !captchaValid) {
+      setError('請完成安全驗證');
+      return;
+    }
+
+    // 實作登入延遲
+    const delay = getLoginDelay();
+    if (delay > 0) {
+      setError(`請等待 ${Math.ceil(delay / 1000)} 秒後再試`);
+      setTimeout(() => setError(''), delay);
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // 創建本地會話
-        createAdminSession(username);
+      // 驗證憑證
+      if (validateAdminCredentials(username, password)) {
+        // 登入成功
+        recordLoginSuccess();
+        await createAdminSession(username);
 
         toast({
           title: '登入成功',
@@ -66,10 +120,24 @@ export default function AdminLogin() {
           isClosable: true,
         });
 
-        // 跳轉到儀表板
         router.push('/mbti-admin/dashboard');
       } else {
-        setError(data.message);
+        // 登入失敗
+        recordLoginFailure();
+        setShowCaptcha(shouldShowCaptcha());
+
+        const newBlockStatus = isLoginBlocked();
+        if (newBlockStatus.blocked) {
+          setCountdown(Math.ceil((newBlockStatus.remainingTime || 0) / 1000));
+          setError(`登入失敗次數過多，帳號已被鎖定 ${formatRemainingTime(newBlockStatus.remainingTime || 0)}`);
+        } else {
+          setError('帳號或密碼錯誤');
+        }
+
+        // 清空表單
+        setPassword('');
+        setCaptchaValue('');
+        setCaptchaValid(false);
       }
     } catch (error) {
       console.error('登入錯誤:', error);
@@ -135,6 +203,14 @@ export default function AdminLogin() {
                   </InputGroup>
                 </FormControl>
 
+                {showCaptcha && (
+                  <Captcha
+                    onVerify={setCaptchaValid}
+                    value={captchaValue}
+                    onChange={setCaptchaValue}
+                  />
+                )}
+
                 <Button
                   type="submit"
                   colorScheme="primary"
@@ -142,9 +218,10 @@ export default function AdminLogin() {
                   width="full"
                   isLoading={isLoading}
                   loadingText="登入中..."
+                  isDisabled={countdown > 0 || (showCaptcha && !captchaValid)}
                   mt={4}
                 >
-                  登入
+                  {countdown > 0 ? `等待 ${countdown} 秒` : '登入'}
                 </Button>
               </VStack>
             </form>

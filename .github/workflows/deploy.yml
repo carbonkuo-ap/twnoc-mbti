@@ -47,9 +47,9 @@ jobs:
       - name: Build with Next.js
         run: yarn deploy
         env:
-          NEXT_PUBLIC_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
-          NEXT_PUBLIC_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           NEXT_PUBLIC_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          NEXT_PUBLIC_ADMIN_HASH: ${{ secrets.ADMIN_HASH }}
+          NEXT_PUBLIC_ADMIN_SALT: ${{ secrets.ADMIN_SALT }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -28,6 +28,8 @@
     "framer-motion": "^6.5.1",
     "idb": "^7.1.1",
     "next": "13.1.1",
+    "otpauth": "^9.4.1",
+    "qrcode": "^1.5.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.7.1",
@@ -37,7 +39,10 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
+    "@types/qrcode": "^1.5.5",
     "eslint-config-prettier": "^8.5.0",
-    "prettier": "2.8.1"
+    "javascript-obfuscator": "^4.1.1",
+    "prettier": "2.8.1",
+    "webpack-obfuscator": "^3.5.1"
   }
 }

@@ -2,7 +2,7 @@ import { openDB } from "idb";
 import { Option, Future, Result } from "@swan-io/boxed";
 import { personalityTest } from "../data/personality-test";
 import { personalityClassGroup } from "../data/personality-class-groups";
-import { encryptData, decryptData, validateEncryptedData } from "./encryption";
+import { encryptData, decryptDataWithFallback as decryptData, validateEncryptedData } from "./encryption";
 
 export interface TestQuestion {
   no: number;

@@ -1,32 +1,53 @@
-import { encryptData, decryptData } from './encryption';
+import { encryptData, decryptDataWithFallback as decryptData } from './encryption';
+import { hashPassword, verifyPassword, generateFingerprint, generateCSRFToken } from './security';
 
 export interface AdminUser {
   username: string;
   isAuthenticated: boolean;
   loginTime: number;
+  fingerprint?: string;
+  csrfToken?: string;
+  lastActivity: number;
 }
 
 const SESSION_KEY = 'mbti_admin_session';
 const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+const ADMIN_HASH_KEY = 'mbti_admin_hash';
+const ADMIN_SALT_KEY = 'mbti_admin_salt';
 
 /**
- * 驗證管理員憑證
+ * 驗證管理員憑證（使用密碼雜湊）
  */
 export function validateAdminCredentials(username: string, password: string): boolean {
+  // 檢查使用者名稱
   const adminUsername = process.env.NEXT_PUBLIC_ADMIN_USERNAME || 'twnoc-yjmbti';
-  const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'default-password';
+  if (username !== adminUsername) {
+    return false;
+  }
 
-  return username === adminUsername && password === adminPassword;
+  // 取得環境變數中的雜湊值和鹽值
+  const adminHash = process.env.NEXT_PUBLIC_ADMIN_HASH || hashPassword('default-password', 'default-salt');
+  const adminSalt = process.env.NEXT_PUBLIC_ADMIN_SALT || 'default-salt';
+
+  // 驗證密碼雜湊
+  return verifyPassword(password, adminHash, adminSalt);
 }
 
 /**
- * 創建管理員會話
+ * 創建管理員會話（包含指紋和 CSRF Token）
  */
-export function createAdminSession(username: string): void {
+export async function createAdminSession(username: string): Promise<void> {
+  const fingerprint = await generateFingerprint();
+  const csrfToken = generateCSRFToken();
+
   const sessionData: AdminUser = {
     username,
     isAuthenticated: true,
-    loginTime: Date.now()
+    loginTime: Date.now(),
+    lastActivity: Date.now(),
+    fingerprint,
+    csrfToken
   };
 
   try {
@@ -39,9 +60,9 @@ export function createAdminSession(username: string): void {
 }
 
 /**
- * 獲取當前管理員會話
+ * 獲取當前管理員會話（包含指紋驗證和不活動檢查）
  */
-export function getAdminSession(): AdminUser | null {
+export async function getAdminSession(): Promise<AdminUser | null> {
   try {
     const encryptedSession = localStorage.getItem(SESSION_KEY);
     if (!encryptedSession) {
@@ -56,6 +77,26 @@ export function getAdminSession(): AdminUser | null {
       return null;
     }
 
+    // 檢查不活動超時
+    if (Date.now() - sessionData.lastActivity > INACTIVITY_TIMEOUT) {
+      clearAdminSession();
+      return null;
+    }
+
+    // 驗證瀏覽器指紋
+    if (sessionData.fingerprint) {
+      const currentFingerprint = await generateFingerprint();
+      if (currentFingerprint !== sessionData.fingerprint) {
+        clearAdminSession();
+        return null;
+      }
+    }
+
+    // 更新最後活動時間
+    sessionData.lastActivity = Date.now();
+    const encryptedUpdatedSession = encryptData(sessionData);
+    localStorage.setItem(SESSION_KEY, encryptedUpdatedSession);
+
     return sessionData;
   } catch (error) {
     console.error('獲取會話失敗:', error);
@@ -67,8 +108,8 @@ export function getAdminSession(): AdminUser | null {
 /**
  * 檢查是否已認證
  */
-export function isAuthenticated(): boolean {
-  const session = getAdminSession();
+export async function isAuthenticated(): Promise<boolean> {
+  const session = await getAdminSession();
   return session?.isAuthenticated === true;
 }
 
@@ -89,19 +130,20 @@ export function logoutAdmin(): void {
 /**
  * 延長會話時間
  */
-export function refreshAdminSession(): void {
-  const session = getAdminSession();
+export async function refreshAdminSession(): Promise<void> {
+  const session = await getAdminSession();
   if (session) {
     session.loginTime = Date.now();
-    createAdminSession(session.username);
+    session.lastActivity = Date.now();
+    await createAdminSession(session.username);
   }
 }
 
 /**
  * 獲取會話剩餘時間（毫秒）
  */
-export function getSessionTimeRemaining(): number {
-  const session = getAdminSession();
+export async function getSessionTimeRemaining(): Promise<number> {
+  const session = await getAdminSession();
   if (!session) return 0;
 
   const elapsed = Date.now() - session.loginTime;
@@ -112,8 +154,8 @@ export function getSessionTimeRemaining(): number {
 /**
  * 檢查是否即將過期（30分鐘內）
  */
-export function isSessionExpiringSoon(): boolean {
-  const remaining = getSessionTimeRemaining();
+export async function isSessionExpiringSoon(): Promise<boolean> {
+  const remaining = await getSessionTimeRemaining();
   const thirtyMinutes = 30 * 60 * 1000;
   return remaining > 0 && remaining < thirtyMinutes;
 }

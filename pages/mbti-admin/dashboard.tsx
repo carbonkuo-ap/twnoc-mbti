@@ -33,13 +33,13 @@ import {
 } from '@chakra-ui/react';
 import { FiUsers, FiActivity, FiBarChart, FiLogOut } from 'react-icons/fi';
 import dayjs from 'dayjs';
-import { isAuthenticated, logoutAdmin, getAdminSession } from '../../lib/auth';
+import { isAuthenticated, logoutAdmin, getAdminSession, AdminUser } from '../../lib/auth';
 import {
   getAllSavedTestResult,
   TestResult,
   getPersonalityClassGroupByTestScores
 } from '../../lib/personality-test';
-import { decryptData } from '../../lib/encryption';
+import { decryptDataWithFallback as decryptData } from '../../lib/encryption';
 
 interface TestStats {
   totalTests: number;
@@ -52,19 +52,31 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState<TestStats | null>(null);
   const [error, setError] = useState('');
+  const [session, setSession] = useState<AdminUser | null>(null);
   const router = useRouter();
   const toast = useToast();
 
   useEffect(() => {
     // 檢查認證狀態
-    if (!isAuthenticated()) {
-      router.push('/mbti-admin');
-      return;
-    }
+    const checkAuth = async () => {
+      if (!(await isAuthenticated())) {
+        router.push('/mbti-admin');
+        return;
+      }
+      loadDashboardData();
+    };
 
-    loadDashboardData();
+    checkAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]); // loadDashboardData 不需要加入依賴，因為它不使用任何狀態或 props
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const currentSession = await getAdminSession();
+      setSession(currentSession);
+    };
+    fetchSession();
+  }, []);
 
   const loadDashboardData = async () => {
     try {
@@ -173,7 +185,6 @@ export default function AdminDashboard() {
     );
   }
 
-  const session = getAdminSession();
 
   return (
     <Container maxW="6xl" py={8}>
