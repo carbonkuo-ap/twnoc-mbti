@@ -11,6 +11,8 @@ import {
   getQuestionAnswerScore,
   saveTestResult,
 } from "../../lib/personality-test";
+import { saveTestResultToFirebase } from "../../lib/firebase";
+import { extractOTPFromUrl } from "../../lib/otp";
 import useUserTestAnswersStore from "../../store/use-user-test-answers";
 
 export default function TestQuestion() {
@@ -70,26 +72,48 @@ export default function TestQuestion() {
     });
   }
 
-  function handleSeeResultButtonClick() {
+  async function handleSeeResultButtonClick() {
     const timestamp = Date.now();
     const testScores = userTestAnswers.map((answer, index) =>
       getQuestionAnswerScore(index + 1, answer)
     );
 
-    saveTestResult({
+    const testResult = {
       testAnswers: userTestAnswers,
       testScores,
       timestamp,
-    })
-      .tap(() => {
-        setUserTestAnswers([]);
-      })
-      .tapOk((id) => {
-        router.replace(`/test/result/?testResultId=${id}`);
-      })
-      .tapError((error) => {
-        console.error(error);
-      });
+    };
+
+    // 獲取 OTP Token（如果有的話）
+    const otpToken = extractOTPFromUrl();
+
+    // 同時保存到本地和 Firebase
+    try {
+      // 保存到本地 IndexedDB
+      const localResult = await saveTestResult(testResult);
+
+      localResult
+        .tap(() => {
+          setUserTestAnswers([]);
+        })
+        .tapOk(async (id) => {
+          // 嘗試保存到 Firebase
+          try {
+            const firebaseSuccess = await saveTestResultToFirebase(testResult, otpToken || undefined);
+            console.log('Firebase 保存結果:', firebaseSuccess ? '成功' : '失敗');
+          } catch (firebaseError) {
+            console.warn('Firebase 保存失敗:', firebaseError);
+            // Firebase 失敗不影響本地功能
+          }
+
+          router.replace(`/test/result/?testResultId=${id}`);
+        })
+        .tapError((error) => {
+          console.error('本地保存失敗:', error);
+        });
+    } catch (error) {
+      console.error('測試結果保存過程發生錯誤:', error);
+    }
   }
 
   return (

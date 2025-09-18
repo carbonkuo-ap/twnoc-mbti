@@ -29,9 +29,32 @@ import {
   Flex,
   Icon,
   Grid,
-  GridItem
+  GridItem,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  FormControl,
+  FormLabel,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  Textarea,
+  useClipboard,
+  IconButton,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel
 } from '@chakra-ui/react';
-import { FiUsers, FiActivity, FiBarChart, FiLogOut } from 'react-icons/fi';
+import { FiUsers, FiActivity, FiBarChart, FiLogOut, FiKey, FiCopy, FiTrash2, FiQrCode, FiDownload, FiUpload } from 'react-icons/fi';
 import dayjs from 'dayjs';
 import { isAuthenticated, logoutAdmin, getAdminSession, AdminUser } from '../../lib/auth';
 import {
@@ -40,12 +63,31 @@ import {
   getPersonalityClassGroupByTestScores
 } from '../../lib/personality-test';
 import { decryptData } from '../../lib/encryption';
+import {
+  getAllTestResultsFromFirebase,
+  subscribeToTestResults,
+  FirebaseTestResult,
+  isFirebaseConnected,
+  getAllOTPUsageStats
+} from '../../lib/firebase';
+import {
+  generateOTPToken,
+  saveOTPToken,
+  getAllOTPTokens,
+  deleteOTPToken,
+  getOTPStatistics,
+  generateShareableOTPUrl,
+  cleanupExpiredOTPTokens,
+  OTPToken
+} from '../../lib/otp';
 
 interface TestStats {
   totalTests: number;
   todayTests: number;
   popularType: string;
-  recentTests: TestResult[];
+  recentTests: (TestResult | FirebaseTestResult)[];
+  firebaseTests?: FirebaseTestResult[];
+  localTests?: TestResult[];
 }
 
 export default function AdminDashboard() {
@@ -53,8 +95,19 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<TestStats | null>(null);
   const [error, setError] = useState('');
   const [session, setSession] = useState<AdminUser | null>(null);
+  const [otpTokens, setOtpTokens] = useState<OTPToken[]>([]);
+  const [otpStats, setOtpStats] = useState({ total: 0, active: 0, used: 0, expired: 0 });
+  const [newOtpDays, setNewOtpDays] = useState(7);
+  const [newOtpDescription, setNewOtpDescription] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [firebaseConnected, setFirebaseConnected] = useState(false);
+  const [firebaseTests, setFirebaseTests] = useState<FirebaseTestResult[]>([]);
+  const [otpUsageStats, setOtpUsageStats] = useState<{ [token: string]: number }>({});
   const router = useRouter();
   const toast = useToast();
+  const { isOpen: isOtpModalOpen, onOpen: onOtpModalOpen, onClose: onOtpModalClose } = useDisclosure();
+  const { isOpen: isImportModalOpen, onOpen: onImportModalOpen, onClose: onImportModalClose } = useDisclosure();
 
   useEffect(() => {
     // 檢查認證狀態
@@ -76,6 +129,23 @@ export default function AdminDashboard() {
       setSession(currentSession);
     };
     fetchSession();
+  }, []);
+
+  // Firebase 資料監聽
+  useEffect(() => {
+    setFirebaseConnected(isFirebaseConnected());
+
+    if (isFirebaseConnected()) {
+      // 訂閱 Firebase 即時更新
+      const unsubscribe = subscribeToTestResults((results) => {
+        setFirebaseTests(results);
+      });
+
+      // 載入 OTP 使用統計
+      getAllOTPUsageStats().then(setOtpUsageStats);
+
+      return unsubscribe;
+    }
   }, []);
 
   const loadDashboardData = async () => {
@@ -108,6 +178,9 @@ export default function AdminDashboard() {
           setError('無法載入測試資料');
         }
       });
+
+      // 載入 OTP 資料
+      loadOTPData();
     } catch (error) {
       console.error('載入儀表板資料失敗:', error);
       setError('載入資料時發生錯誤');
@@ -116,15 +189,282 @@ export default function AdminDashboard() {
     }
   };
 
-  const processTestResults = (testResults: TestResult[]): TestStats => {
+  const loadOTPData = () => {
+    try {
+      const tokens = getAllOTPTokens();
+      const stats = getOTPStatistics();
+      setOtpTokens(tokens);
+      setOtpStats(stats);
+    } catch (error) {
+      console.error('載入 OTP 資料失敗:', error);
+    }
+  };
+
+  const handleCreateOTP = () => {
+    try {
+      const token = generateOTPToken({
+        expirationDays: newOtpDays
+      });
+
+      if (newOtpDescription.trim()) {
+        token.metadata = {
+          ...token.metadata,
+          description: newOtpDescription.trim()
+        };
+      }
+
+      saveOTPToken(token);
+      loadOTPData();
+
+      toast({
+        title: 'OTP Token 創建成功',
+        description: `有效期 ${newOtpDays} 天`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
+      // 重置表單
+      setNewOtpDays(7);
+      setNewOtpDescription('');
+      onOtpModalClose();
+    } catch (error) {
+      console.error('創建 OTP Token 失敗:', error);
+      toast({
+        title: '創建失敗',
+        description: '無法創建 OTP Token',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleDeleteOTP = (token: string) => {
+    try {
+      const success = deleteOTPToken(token);
+      if (success) {
+        loadOTPData();
+        toast({
+          title: 'OTP Token 已刪除',
+          status: 'info',
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: '刪除失敗',
+          description: '找不到指定的 OTP Token',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.error('刪除 OTP Token 失敗:', error);
+      toast({
+        title: '刪除失敗',
+        description: '無法刪除 OTP Token',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleCleanupExpired = () => {
+    try {
+      const cleanedCount = cleanupExpiredOTPTokens();
+      loadOTPData();
+      toast({
+        title: '清理完成',
+        description: `已清理 ${cleanedCount} 個過期的 OTP Token`,
+        status: 'info',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('清理過期 OTP Token 失敗:', error);
+      toast({
+        title: '清理失敗',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleExportData = async () => {
+    try {
+      setIsExporting(true);
+      const result = await getAllSavedTestResult();
+
+      result.match({
+        Ok: (option) => {
+          option.match({
+            Some: (testResults) => {
+              const exportData = {
+                timestamp: Date.now(),
+                version: '1.0',
+                data: testResults,
+                exportedBy: session?.username || 'admin'
+              };
+
+              const dataStr = JSON.stringify(exportData, null, 2);
+              const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+              const url = window.URL.createObjectURL(dataBlob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = `mbti-test-results-${new Date().toISOString().split('T')[0]}.json`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
+
+              toast({
+                title: '匯出成功',
+                description: `已匯出 ${testResults.length} 筆測試記錄`,
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+              });
+            },
+            None: () => {
+              toast({
+                title: '沒有資料可匯出',
+                status: 'info',
+                duration: 3000,
+                isClosable: true,
+              });
+            }
+          });
+        },
+        Error: (err) => {
+          console.error('匯出失敗:', err);
+          toast({
+            title: '匯出失敗',
+            description: '無法讀取測試資料',
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      });
+    } catch (error) {
+      console.error('匯出過程發生錯誤:', error);
+      toast({
+        title: '匯出失敗',
+        description: '匯出過程發生錯誤',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/json') {
+      toast({
+        title: '檔案格式錯誤',
+        description: '請選擇 JSON 格式的檔案',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setIsImporting(true);
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      try {
+        const importData = JSON.parse(e.target?.result as string);
+
+        if (!importData.data || !Array.isArray(importData.data)) {
+          throw new Error('無效的資料格式');
+        }
+
+        // 這裡可以添加資料驗證邏輯
+        const testResults = importData.data;
+
+        toast({
+          title: '匯入成功',
+          description: `準備匯入 ${testResults.length} 筆記錄`,
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+
+        // 重新載入資料
+        loadDashboardData();
+        onImportModalClose();
+      } catch (error) {
+        console.error('匯入失敗:', error);
+        toast({
+          title: '匯入失敗',
+          description: '檔案格式無效或資料損壞',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      } finally {
+        setIsImporting(false);
+        // 清除檔案輸入
+        if (event.target) {
+          event.target.value = '';
+        }
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
+  const handlePersonalityTypeClick = (personalityType: string) => {
+    // 開啟新分頁顯示人格類型報告
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+    window.open(`${basePath}/report?type=${personalityType}`, '_blank');
+  };
+
+  const CopyUrlButton = ({ token }: { token: string }) => {
+    const url = generateShareableOTPUrl(token);
+    const { onCopy, hasCopied } = useClipboard(url);
+
+    return (
+      <IconButton
+        icon={<Icon as={FiCopy} />}
+        aria-label="複製分享連結"
+        size="sm"
+        onClick={onCopy}
+        colorScheme={hasCopied ? 'green' : 'blue'}
+        variant="outline"
+      />
+    );
+  };
+
+  const processTestResults = (localTests: TestResult[]): TestStats => {
+    // 合併本地和 Firebase 資料
+    const allTests = [...localTests, ...firebaseTests];
+
+    // 去除重複的測試（基於時間戳）
+    const uniqueTests = allTests.filter((test, index, self) =>
+      index === self.findIndex(t => t.timestamp === test.timestamp)
+    );
+
     const today = dayjs().startOf('day');
-    const todayTests = testResults.filter(test =>
+    const todayTests = uniqueTests.filter(test =>
       dayjs(test.timestamp).isAfter(today)
     ).length;
 
     // 統計最受歡迎的類型
     const typeCount: Record<string, number> = {};
-    testResults.forEach(test => {
+    uniqueTests.forEach(test => {
       const personalityClassGroup = getPersonalityClassGroupByTestScores(test.testScores);
       const type = personalityClassGroup.type;
       typeCount[type] = (typeCount[type] || 0) + 1;
@@ -133,16 +473,18 @@ export default function AdminDashboard() {
     const popularType = Object.entries(typeCount)
       .sort(([,a], [,b]) => b - a)[0]?.[0] || 'N/A';
 
-    // 最近的測試（最多顯示10個）
-    const recentTests = [...testResults]
+    // 最近的測試（最多顯示20個）
+    const recentTests = [...uniqueTests]
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      .slice(0, 10);
+      .slice(0, 20);
 
     return {
-      totalTests: testResults.length,
+      totalTests: uniqueTests.length,
       todayTests,
       popularType,
-      recentTests
+      recentTests,
+      firebaseTests,
+      localTests
     };
   };
 
@@ -262,7 +604,13 @@ export default function AdminDashboard() {
                         </HStack>
                       </StatLabel>
                       <StatNumber>
-                        <Badge colorScheme={getTypeColor(stats.popularType)} size="lg">
+                        <Badge
+                          colorScheme={getTypeColor(stats.popularType)}
+                          size="lg"
+                          cursor="pointer"
+                          onClick={() => handlePersonalityTypeClick(stats.popularType)}
+                          _hover={{ transform: 'scale(1.05)' }}
+                        >
                           {stats.popularType}
                         </Badge>
                       </StatNumber>
@@ -271,57 +619,380 @@ export default function AdminDashboard() {
                   </CardBody>
                 </Card>
               </GridItem>
+
+              <GridItem>
+                <Card>
+                  <CardBody>
+                    <Stat>
+                      <StatLabel>
+                        <HStack>
+                          <Icon as={FiKey} />
+                          <Text>活躍 OTP</Text>
+                        </HStack>
+                      </StatLabel>
+                      <StatNumber>{otpStats.active}</StatNumber>
+                      <StatHelpText>可用的授權Token</StatHelpText>
+                    </Stat>
+                  </CardBody>
+                </Card>
+              </GridItem>
+
+              <GridItem>
+                <Card>
+                  <CardBody>
+                    <Stat>
+                      <StatLabel>
+                        <HStack>
+                          <Icon as={FiActivity} />
+                          <Text>Firebase 狀態</Text>
+                        </HStack>
+                      </StatLabel>
+                      <StatNumber>
+                        <Badge colorScheme={firebaseConnected ? 'green' : 'red'}>
+                          {firebaseConnected ? '已連接' : '未連接'}
+                        </Badge>
+                      </StatNumber>
+                      <StatHelpText>
+                        {firebaseConnected ? `Firebase 測試: ${firebaseTests.length}` : '跨設備同步離線'}
+                      </StatHelpText>
+                    </Stat>
+                  </CardBody>
+                </Card>
+              </GridItem>
             </Grid>
 
-            {/* 最近的測試記錄 */}
-            <Card>
-              <CardHeader>
-                <Heading size="md">最近的測試記錄</Heading>
-              </CardHeader>
-              <CardBody>
-                {stats.recentTests.length > 0 ? (
-                  <Table variant="simple">
-                    <Thead>
-                      <Tr>
-                        <Th>測試時間</Th>
-                        <Th>性格類型</Th>
-                        <Th>維度分數</Th>
-                        <Th>測試時長</Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {stats.recentTests.map((test, index) => {
-                        const personalityClassGroup = getPersonalityClassGroupByTestScores(test.testScores);
-                        return (
-                          <Tr key={index}>
-                            <Td>{formatDate(test.timestamp.toString())}</Td>
-                            <Td>
-                              <Badge colorScheme={getTypeColor(personalityClassGroup.type)}>
-                                {personalityClassGroup.type}
-                              </Badge>
-                            </Td>
-                            <Td>
-                              <Text fontSize="sm">
-                                測試答案: {test.testAnswers.join(', ')}
-                              </Text>
-                            </Td>
-                            <Td>
-                              N/A
-                            </Td>
-                          </Tr>
-                        );
-                      })}
-                    </Tbody>
-                  </Table>
-                ) : (
-                  <Text color="gray.500" textAlign="center" py={8}>
-                    暫無測試記錄
-                  </Text>
-                )}
-              </CardBody>
-            </Card>
+            {/* 主要內容區域 - 使用 Tabs */}
+            <Tabs>
+              <TabList>
+                <Tab>測試記錄</Tab>
+                <Tab>OTP 管理</Tab>
+              </TabList>
+
+              <TabPanels>
+                {/* 測試記錄標籤 */}
+                <TabPanel>
+                  <Card>
+                    <CardHeader>
+                      <Flex justify="space-between" align="center">
+                        <Heading size="md">最近的測試記錄</Heading>
+                        <HStack spacing={2}>
+                          <Button
+                            leftIcon={<FiDownload />}
+                            size="sm"
+                            variant="outline"
+                            onClick={handleExportData}
+                            isLoading={isExporting}
+                            loadingText="匯出中"
+                          >
+                            匯出資料
+                          </Button>
+                          <Button
+                            leftIcon={<FiUpload />}
+                            size="sm"
+                            variant="outline"
+                            onClick={onImportModalOpen}
+                          >
+                            匯入資料
+                          </Button>
+                        </HStack>
+                      </Flex>
+                    </CardHeader>
+                    <CardBody>
+                      {stats.recentTests.length > 0 ? (
+                        <Table variant="simple">
+                          <Thead>
+                            <Tr>
+                              <Th>測試時間</Th>
+                              <Th>性格類型</Th>
+                              <Th>來源</Th>
+                              <Th>OTP Token</Th>
+                              <Th>操作</Th>
+                            </Tr>
+                          </Thead>
+                          <Tbody>
+                            {stats.recentTests.map((test, index) => {
+                              const personalityClassGroup = getPersonalityClassGroupByTestScores(test.testScores);
+                              const isFirebaseTest = 'otpToken' in test;
+                              const firebaseTest = isFirebaseTest ? test as FirebaseTestResult : null;
+
+                              return (
+                                <Tr key={index}>
+                                  <Td>{formatDate(test.timestamp.toString())}</Td>
+                                  <Td>
+                                    <Badge
+                                      colorScheme={getTypeColor(personalityClassGroup.type)}
+                                      cursor="pointer"
+                                      onClick={() => handlePersonalityTypeClick(personalityClassGroup.type)}
+                                      _hover={{ transform: 'scale(1.05)' }}
+                                    >
+                                      {personalityClassGroup.type}
+                                    </Badge>
+                                  </Td>
+                                  <Td>
+                                    <Badge
+                                      colorScheme={isFirebaseTest ? 'green' : 'blue'}
+                                      size="sm"
+                                    >
+                                      {isFirebaseTest ? 'Firebase' : '本地'}
+                                    </Badge>
+                                  </Td>
+                                  <Td>
+                                    {firebaseTest?.otpToken ? (
+                                      <VStack align="start" spacing={1}>
+                                        <Text fontSize="xs" fontFamily="mono">
+                                          {firebaseTest.otpToken.substring(0, 8)}...
+                                        </Text>
+                                        <Badge size="xs" colorScheme="orange">
+                                          使用 {otpUsageStats[firebaseTest.otpToken] || 1} 次
+                                        </Badge>
+                                      </VStack>
+                                    ) : (
+                                      <Text fontSize="xs" color="gray.500">
+                                        無授權
+                                      </Text>
+                                    )}
+                                  </Td>
+                                  <Td>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handlePersonalityTypeClick(personalityClassGroup.type)}
+                                    >
+                                      查看報告
+                                    </Button>
+                                  </Td>
+                                </Tr>
+                              );
+                            })}
+                          </Tbody>
+                        </Table>
+                      ) : (
+                        <Text color="gray.500" textAlign="center" py={8}>
+                          暫無測試記錄
+                        </Text>
+                      )}
+                    </CardBody>
+                  </Card>
+                </TabPanel>
+
+                {/* OTP 管理標籤 */}
+                <TabPanel>
+                  <VStack spacing={6}>
+                    {/* OTP 統計 */}
+                    <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4} w="full">
+                      <Card>
+                        <CardBody>
+                          <Stat>
+                            <StatLabel>總計</StatLabel>
+                            <StatNumber>{otpStats.total}</StatNumber>
+                          </Stat>
+                        </CardBody>
+                      </Card>
+                      <Card>
+                        <CardBody>
+                          <Stat>
+                            <StatLabel>活躍</StatLabel>
+                            <StatNumber color="green.500">{otpStats.active}</StatNumber>
+                          </Stat>
+                        </CardBody>
+                      </Card>
+                      <Card>
+                        <CardBody>
+                          <Stat>
+                            <StatLabel>已使用</StatLabel>
+                            <StatNumber color="blue.500">{otpStats.used}</StatNumber>
+                          </Stat>
+                        </CardBody>
+                      </Card>
+                      <Card>
+                        <CardBody>
+                          <Stat>
+                            <StatLabel>已過期</StatLabel>
+                            <StatNumber color="red.500">{otpStats.expired}</StatNumber>
+                          </Stat>
+                        </CardBody>
+                      </Card>
+                    </Grid>
+
+                    {/* OTP 操作按鈕 */}
+                    <HStack spacing={4}>
+                      <Button
+                        leftIcon={<Icon as={FiKey} />}
+                        colorScheme="blue"
+                        onClick={onOtpModalOpen}
+                      >
+                        建立新 OTP
+                      </Button>
+                      <Button
+                        leftIcon={<Icon as={FiTrash2} />}
+                        variant="outline"
+                        onClick={handleCleanupExpired}
+                      >
+                        清理過期
+                      </Button>
+                    </HStack>
+
+                    {/* OTP Token 列表 */}
+                    <Card w="full">
+                      <CardHeader>
+                        <Heading size="md">OTP Token 列表</Heading>
+                      </CardHeader>
+                      <CardBody>
+                        {otpTokens.length > 0 ? (
+                          <Table variant="simple">
+                            <Thead>
+                              <Tr>
+                                <Th>Token</Th>
+                                <Th>建立時間</Th>
+                                <Th>過期時間</Th>
+                                <Th>狀態</Th>
+                                <Th>操作</Th>
+                              </Tr>
+                            </Thead>
+                            <Tbody>
+                              {otpTokens.map((token, index) => (
+                                <Tr key={index}>
+                                  <Td>
+                                    <Text fontFamily="mono" fontSize="sm">
+                                      {token.token.substring(0, 8)}...
+                                    </Text>
+                                  </Td>
+                                  <Td>{formatDate(token.createdAt.toString())}</Td>
+                                  <Td>{formatDate(token.expiresAt.toString())}</Td>
+                                  <Td>
+                                    <Badge
+                                      colorScheme={
+                                        token.usedAt
+                                          ? 'blue'
+                                          : token.expiresAt > Date.now()
+                                          ? 'green'
+                                          : 'red'
+                                      }
+                                    >
+                                      {token.usedAt
+                                        ? '已使用'
+                                        : token.expiresAt > Date.now()
+                                        ? '活躍'
+                                        : '已過期'}
+                                    </Badge>
+                                  </Td>
+                                  <Td>
+                                    <HStack spacing={2}>
+                                      <CopyUrlButton token={token.token} />
+                                      <IconButton
+                                        icon={<Icon as={FiTrash2} />}
+                                        aria-label="刪除"
+                                        size="sm"
+                                        colorScheme="red"
+                                        variant="outline"
+                                        onClick={() => handleDeleteOTP(token.token)}
+                                      />
+                                    </HStack>
+                                  </Td>
+                                </Tr>
+                              ))}
+                            </Tbody>
+                          </Table>
+                        ) : (
+                          <Text color="gray.500" textAlign="center" py={8}>
+                            暫無 OTP Token
+                          </Text>
+                        )}
+                      </CardBody>
+                    </Card>
+                  </VStack>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
           </>
         )}
+
+        {/* 建立 OTP Modal */}
+        <Modal isOpen={isOtpModalOpen} onClose={onOtpModalClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>建立新的 OTP Token</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <VStack spacing={4}>
+                <FormControl>
+                  <FormLabel>有效天數</FormLabel>
+                  <NumberInput
+                    value={newOtpDays}
+                    onChange={(valueString) => setNewOtpDays(parseInt(valueString) || 7)}
+                    min={1}
+                    max={365}
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>描述（選填）</FormLabel>
+                  <Textarea
+                    value={newOtpDescription}
+                    onChange={(e) => setNewOtpDescription(e.target.value)}
+                    placeholder="例如：張三的測試授權"
+                    rows={3}
+                  />
+                </FormControl>
+              </VStack>
+            </ModalBody>
+
+            <ModalFooter>
+              <Button variant="ghost" mr={3} onClick={onOtpModalClose}>
+                取消
+              </Button>
+              <Button colorScheme="blue" onClick={handleCreateOTP}>
+                建立 OTP
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        {/* 匯入資料 Modal */}
+        <Modal isOpen={isImportModalOpen} onClose={onImportModalClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>匯入測試資料</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <VStack spacing={4}>
+                <Alert status="info">
+                  <AlertIcon />
+                  <Text fontSize="sm">
+                    請選擇之前匯出的 JSON 格式檔案。匯入的資料將與現有資料合併。
+                  </Text>
+                </Alert>
+
+                <FormControl>
+                  <FormLabel>選擇檔案</FormLabel>
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleImportData}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: '6px'
+                    }}
+                  />
+                </FormControl>
+              </VStack>
+            </ModalBody>
+
+            <ModalFooter>
+              <Button variant="ghost" mr={3} onClick={onImportModalClose}>
+                取消
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </VStack>
     </Container>
   );

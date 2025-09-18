@@ -2,7 +2,6 @@ import * as OTPAuth from 'otpauth';
 import QRCode from 'qrcode';
 import { encryptData, decryptData } from './encryption';
 
-const TOTP_SECRET_KEY = 'mbti_totp_secret';
 const TOTP_SETUP_KEY = 'mbti_totp_setup';
 
 export interface TOTPSetup {

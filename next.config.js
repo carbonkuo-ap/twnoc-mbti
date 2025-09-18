@@ -6,8 +6,8 @@ const nextConfig = {
   swcMinify: true,
 
   // GitHub Pages specific configuration
-  basePath: process.env.NODE_ENV === 'production' ? '/twnoc-mbti' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/twnoc-mbti/' : undefined,
+  basePath: process.env.NODE_ENV === 'production' ? (process.env.NEXT_PUBLIC_BASE_PATH || '/twnoc-mbti') : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? (process.env.NEXT_PUBLIC_BASE_PATH || '/twnoc-mbti') + '/' : undefined,
   trailingSlash: true,
   images: {
     unoptimized: true
@@ -87,7 +87,7 @@ const nextConfig = {
     NEXT_PUBLIC_ENCRYPTION_KEY: process.env.NEXT_PUBLIC_ENCRYPTION_KEY,
     NEXT_PUBLIC_ADMIN_HASH: process.env.NEXT_PUBLIC_ADMIN_HASH,
     NEXT_PUBLIC_ADMIN_SALT: process.env.NEXT_PUBLIC_ADMIN_SALT,
-    NEXT_PUBLIC_BASE_PATH: process.env.NODE_ENV === 'production' ? '/twnoc-mbti' : '',
+    NEXT_PUBLIC_BASE_PATH: process.env.NODE_ENV === 'production' ? (process.env.NEXT_PUBLIC_BASE_PATH || '/twnoc-mbti') : '',
   }
 };
 

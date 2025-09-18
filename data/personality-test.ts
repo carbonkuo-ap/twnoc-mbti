@@ -3,113 +3,113 @@ import { TestQuestion } from "../lib/personality-test";
 export const personalityTest: TestQuestion[] = [
   {
     no: 1,
-    question: "在派對上，你通常會：",
+    question: "在聚會或派對上，你通常會：",
     answerOptions: [
       {
         type: "A",
-        answer: "與許多人交流，包括陌生人",
+        answer: "主動跟很多人聊天，包括不認識的人",
         score: "E",
       },
-      { 
-        type: "B", 
-        answer: "與幾個你認識的人交流", 
-        score: "I" 
+      {
+        type: "B",
+        answer: "只跟幾個熟悉的朋友聊天",
+        score: "I"
       },
     ],
   },
   {
     no: 2,
-    question: "你更傾向於：",
+    question: "你覺得自己比較：",
     answerOptions: [
-      { 
-        type: "A", 
-        answer: "現實一些，而不是愛幻想", 
-        score: "S" 
+      {
+        type: "A",
+        answer: "實際，不太愛做白日夢",
+        score: "S"
       },
-      { 
-        type: "B", 
-        answer: "愛幻想，而不是過於現實", 
-        score: "N" 
+      {
+        type: "B",
+        answer: "愛想像，常常天馬行空",
+        score: "N"
       },
     ],
   },
   {
     no: 3,
-    question: "以下哪種情況更糟：",
+    question: "你覺得哪種情況比較糟糕：",
     answerOptions: [
-      { 
-        type: "A", 
-        answer: "總是異想天開", 
-        score: "S" 
+      {
+        type: "A",
+        answer: "老是在幻想，不切實際",
+        score: "S"
       },
-      { 
-        type: "B", 
-        answer: "墨守成規", 
-        score: "N" 
+      {
+        type: "B",
+        answer: "太死板，不知變通",
+        score: "N"
       },
     ],
   },
   {
     no: 4,
-    question: "你更欣賞：",
+    question: "你比較欣賞：",
     answerOptions: [
-      { 
-        type: "A", 
-        answer: "原則", 
-        score: "T" 
+      {
+        type: "A",
+        answer: "有原則的人",
+        score: "T"
       },
-      { 
-        type: "B", 
-        answer: "情感", 
-        score: "F" 
+      {
+        type: "B",
+        answer: "有感情的人",
+        score: "F"
       },
     ],
   },
   {
     no: 5,
-    question: "你更傾向於：",
+    question: "你比較傾向於：",
     answerOptions: [
-      { 
-        type: "A", 
-        answer: "有說服力的", 
-        score: "T" 
+      {
+        type: "A",
+        answer: "用道理說服別人",
+        score: "T"
       },
-      { 
-        type: "B", 
-        answer: "感人的", 
-        score: "F" 
+      {
+        type: "B",
+        answer: "用情感打動別人",
+        score: "F"
       },
     ],
   },
   {
     no: 6,
-    question: "你更喜歡哪種工作方式：",
+    question: "你比較喜歡哪種工作方式：",
     answerOptions: [
-      { 
-        type: "A", 
-        answer: "按截止日期完成任務", 
-        score: "J" 
+      {
+        type: "A",
+        answer: "按照既定時間完成任務",
+        score: "J"
       },
-      { 
-        type: "B", 
-        answer: "隨意什麼時候都行", 
-        score: "P" 
+      {
+        type: "B",
+        answer: "想做的時候再做，時間彈性一點",
+        score: "P"
       },
     ],
   },
   {
     no: 7,
-    question: "你做選擇時更傾向於：",
+    question: "你做決定時比較：",
     answerOptions: [
-      { 
-        type: "A", 
-        answer: "比較謹慎", 
-        score: "J" 
+      {
+        type: "A",
+        answer: "謹慎，會多方考慮",
+        score: "J"
       },
-      { 
-        type: "B", 
-        answer: "有點衝動", 
-        score: "P" 
+      {
+        type: "B",
+        answer: "衝動，懒得想太多",
+        score: "P"
       },
     ],
   },
@@ -117,85 +117,85 @@ export const personalityTest: TestQuestion[] = [
     no: 8,
     question: "在聚會上你通常：",
     answerOptions: [
-      { 
-        type: "A", 
-        answer: "待到很晚，越來越有活力", 
-        score: "E" 
+      {
+        type: "A",
+        answer: "玄到很晚，越玩越有精神",
+        score: "E"
       },
-      { 
-        type: "B", 
-        answer: "早早離開，感覺越來越疲倦", 
-        score: "I" 
+      {
+        type: "B",
+        answer: "早早撤退，開始覺得累",
+        score: "I"
       },
     ],
   },
   {
     no: 9,
-    question: "你更被哪種人吸引：",
+    question: "你比較欣賞哪種人：",
     answerOptions: [
-      { 
-        type: "A", 
-        answer: "理智的人", 
-        score: "S" 
+      {
+        type: "A",
+        answer: "理性、實在的人",
+        score: "S"
       },
-      { 
-        type: "B", 
-        answer: "富有想像力的人", 
-        score: "N" 
+      {
+        type: "B",
+        answer: "有創意、愛想像的人",
+        score: "N"
       },
     ],
   },
   {
     no: 10,
-    question: "你對以下哪個更感興趣：",
+    question: "你對什麼比較有興趣：",
     answerOptions: [
-      { 
-        type: "A", 
-        answer: "現實存在的事物", 
-        score: "S" 
+      {
+        type: "A",
+        answer: "真實存在的事物",
+        score: "S"
       },
-      { 
-        type: "B", 
-        answer: "可能存在的事物", 
-        score: "N" 
+      {
+        type: "B",
+        answer: "未來可能的事物",
+        score: "N"
       },
     ],
   },
   {
     no: 11,
-    question: "當評判他人時，你更容易被哪種因素影響：",
+    question: "在評價別人的時候，你比較會受什麼影響：",
     answerOptions: [
       { 
         type: "A", 
-        answer: "法律比具體情況更重要", 
+        answer: "規則比實際狀況重要", 
         score: "T" 
       },
       { 
         type: "B", 
-        answer: "具體情況比法律更重要", 
+        answer: "實際狀況比規則重要", 
         score: "F" 
       },
     ],
   },
   {
     no: 12,
-    question: "在與他人交往時，你傾向於：",
+    question: "跟別人相處的時候，你比較會：",
     answerOptions: [
       { 
         type: "A", 
-        answer: "比較客觀", 
+        answer: "保持理性客觀", 
         score: "T" 
       },
       { 
         type: "B", 
-        answer: "更帶有個人感情", 
+        answer: "帶入個人感情", 
         score: "F"
       },
     ],
   },
   {
     no: 13,
-    question: "你更傾向於：",
+    question: "你比較偏向：",
     answerOptions: [
       { 
         type: "A", 
@@ -211,87 +211,87 @@ export const personalityTest: TestQuestion[] = [
   },
   {
     no: 14,
-    question: "什麼情況更讓你煩惱：",
+    question: "哪種情況比較會讓你煩躁：",
     answerOptions: [
       { 
         type: "A", 
-        answer: "事情未完成", 
+        answer: "事情還沒做完", 
         score: "J" 
       },
       { 
         type: "B", 
-        answer: "事情已完成", 
+        answer: "事情都做完了", 
         score: "P" 
       },
     ],
   },
   {
     no: 15,
-    question: "在你的社交圈中你是：",
+    question: "在你的朋友圈裡，你算是：",
     answerOptions: [
       { 
         type: "A", 
-        answer: "瞭解他人動態", 
+        answer: "很清楚大家在幹嘛", 
         score: "E" 
       },
       { 
         type: "B", 
-        answer: "對新聞消息不太瞭解", 
+        answer: "對外面的消息不太清楚", 
         score: "I" 
       },
     ],
   },
   {
     no: 16,
-    question: "在做日常事務時你更傾向於：",
+    question: "處理日常事務時，你比較會：",
     answerOptions: [
       { 
         type: "A", 
-        answer: "按常規方式做", 
+        answer: "照一般做法做", 
         score: "S" 
       },
       { 
         type: "B", 
-        answer: "用你自己的方式做", 
+        answer: "用自己的方式做", 
         score: "N" 
       },
     ],
   },
   {
     no: 17,
-    question: "作家應該：",
+    question: "你覺得寫文章的人應該：",
     answerOptions: [
       {
         type: "A",
-        answer: "直接說自己想表達的意思",
+        answer: "直接把話說明白",
         score: "S",
       },
       {
         type: "B",
-        answer: "多用比喻來表達想法",
+        answer: "用比喻的方式表達",
         score: "N",
       },
     ],
   },
   {
     no: 18,
-    question: "你更喜歡哪一種：",
+    question: "你比較喜歡哪一種：",
     answerOptions: [
       { 
         type: "A", 
-        answer: "堅持統一的原則或方法", 
+        answer: "堅持一定的原則和做法", 
         score: "T" 
       },
       { 
         type: "B", 
-        answer: "因情境改變想法或立場", 
+        answer: "看情況改變想法或立場", 
         score: "F" 
       },
     ],
   },
   {
     no: 19,
-    question: "你在做哪種判斷時更舒服：",
+    question: "你在做哪種判斷時覺得比較自在：",
     answerOptions: [
       { 
         type: "A", 
@@ -307,79 +307,79 @@ export const personalityTest: TestQuestion[] = [
   },
   {
     no: 20,
-    question: "你更希望事情是：",
+    question: "你比較希望事情是：",
     answerOptions: [
       { 
         type: "A", 
-        answer: "塵埃落定，已經決定的", 
+        answer: "定下來了，已經決定的", 
         score: "J" 
       },
       { 
         type: "B", 
-        answer: "尚未確定，充滿變數的", 
+        answer: "還沒定，可以有很多變化的", 
         score: "P" 
       },
     ],
   },
   {
     no: 21,
-    question: "你會說你更：",
+    question: "你覺得自己比較：",
     answerOptions: [
       { 
         type: "A", 
-        answer: "嚴肅和堅定", 
+        answer: "認真又堅持", 
         score: "J" 
       },
       { 
         type: "B", 
-        answer: "隨和", 
+        answer: "比較随性", 
         score: "P" 
       },
     ],
   },
   {
     no: 22,
-    question: "打電話時你：",
+    question: "與人通電話時，你：",
     answerOptions: [
       {
         type: "A",
-        answer: "很少擔心不知道說什麼",
+        answer: "不太擔心不知道要說什麼",
         score: "E",
       },
       { 
         type: "B", 
-        answer: "提前準備你要說的話", 
+        answer: "會先想好要說什麼", 
         score: "I" 
       },
     ],
   },
   {
     no: 23,
-    question: "事實應該是：",
+    question: "你覺得事實應該是：",
     answerOptions: [
-      { type: "A", answer: "不言自明", score: "S" },
-      { type: "B", answer: "用來說明原理", score: "N" },
+      { type: "A", answer: "很明顯的事", score: "S" },
+      { type: "B", answer: "可以用來解釋道理的", score: "N" },
     ],
   },
   {
     no: 24,
-    question: "你覺得有遠見的人是：",
+    question: "你覺得很有遠見的人：",
     answerOptions: [
-      { type: "A", answer: "有點讓人煩", score: "S" },
-      { type: "B", answer: "非常吸引人", score: "N" },
+      { type: "A", answer: "有時候蛤煩人的", score: "S" },
+      { type: "B", answer: "很有魅力", score: "N" },
     ],
   },
   {
     no: 25,
-    question: "你更常是：",
+    question: "你比較常是：",
     answerOptions: [
-      { type: "A", answer: "一個冷靜的人", score: "T" },
-      { type: "B", answer: "一個熱心的人", score: "F" },
+      { type: "A", answer: "很冷靜的人", score: "T" },
+      { type: "B", answer: "很熱心的人", score: "F" },
     ],
   },
   {
     no: 26,
-    question: "更糟糕的是：",
+    question: "你覺得哪一個比較糟糕：",
     answerOptions: [
       { type: "A", answer: "不公正", score: "T" },
       { type: "B", answer: "無情", score: "F" },
@@ -387,146 +387,146 @@ export const personalityTest: TestQuestion[] = [
   },
   {
     no: 27,
-    question: "一般來說，應該讓事情怎麼發展：",
+    question: "你覺得一般來說，事情應該：",
     answerOptions: [
-      { type: "A", answer: "經過仔細選擇和決定", score: "J" },
-      { type: "B", answer: "順其自然，聽天由命", score: "P" },
+      { type: "A", answer: "經過詳細考慮再決定", score: "J" },
+      { type: "B", answer: "順其自然，随緣發展", score: "P" },
     ],
   },
   {
     no: 28,
-    question: "你對以下哪種情況感覺更滿意：",
+    question: "你對哪種情況覺得比較滿意：",
     answerOptions: [
-      { type: "A", answer: "已經購買了", score: "J" },
-      { type: "B", answer: "擁有購買的機會", score: "P" },
+      { type: "A", answer: "已經买了", score: "J" },
+      { type: "B", answer: "有機會可以买", score: "P" },
     ],
   },
   {
     no: 29,
-    question: "在公司中你會：",
+    question: "在公司裡你會：",
     answerOptions: [
-      { type: "A", answer: "發起對話", score: "E" },
-      { type: "B", answer: "等待別人接近", score: "I" },
+      { type: "A", answer: "主動跟別人聊天", score: "E" },
+      { type: "B", answer: "等別人來找你聊", score: "I" },
     ],
   },
   {
     no: 30,
-    question: "常識是：",
+    question: "你覺得常識：",
     answerOptions: [
-      { type: "A", answer: "很少被質疑", score: "S" },
-      { type: "B", answer: "經常被質疑", score: "N" },
+      { type: "A", answer: "很少會被懷疑", score: "S" },
+      { type: "B", answer: "常常會被懷疑", score: "N" },
     ],
   },
   {
     no: 31,
-    question: "孩子們通常沒有做到：",
+    question: "你覺得小朋友通常沒有：",
     answerOptions: [
-      { type: "A", answer: "讓自己變得更有用", score: "S" },
-      { type: "B", answer: "充分發揮他們的想像力", score: "N" },
+      { type: "A", answer: "讓自己變得更實用", score: "S" },
+      { type: "B", answer: "充分發揮他們的創意", score: "N" },
     ],
   },
   {
     no: 32,
-    question: "在做決定時你感覺更舒服的是：",
+    question: "做決定的時候，你比較偏向依靠：",
     answerOptions: [
-      { type: "A", answer: "標準", score: "T" },
-      { type: "B", answer: "感覺", score: "F" },
+      { type: "A", answer: "客觀標準", score: "T" },
+      { type: "B", answer: "直覺感受", score: "F" },
     ],
   },
   {
     no: 33,
-    question: "你更傾向於：",
+    question: "你比較偏向：",
     answerOptions: [
-      { type: "A", answer: "堅定而不是溫柔", score: "T" },
-      { type: "B", answer: "溫柔而不是堅定", score: "F" },
+      { type: "A", answer: "堅定而不是溫和", score: "T" },
+      { type: "B", answer: "溫和而不是堅定", score: "F" },
     ],
   },
   {
     no: 34,
-    question: "更值得欽佩的是：",
+    question: "你比較佩服哪種能力：",
     answerOptions: [
-      { type: "A", answer: "有組織並且有條理的能力", score: "J" },
-      { type: "B", answer: "適應和權宜之計的能力", score: "P" },
+      { type: "A", answer: "很有組織力和條理性", score: "J" },
+      { type: "B", answer: "很會應變和灵活處理", score: "P" },
     ],
   },
   {
     no: 35,
-    question: "你更重視：",
+    question: "你比較重視：",
     answerOptions: [
-      { type: "A", answer: "無限", score: "J" },
-      { type: "B", answer: "思想開放", score: "P" },
+      { type: "A", answer: "無止境的可能性", score: "J" },
+      { type: "B", answer: "開放的心態", score: "P" },
     ],
   },
   {
     no: 36,
-    question: "與他人的新的非日常互動：",
+    question: "跟別人有新的不同交流會：",
     answerOptions: [
-      { type: "A", answer: "刺激你並使你精力充沛", score: "E" },
-      { type: "B", answer: "消耗你的精力", score: "I" },
+      { type: "A", answer: "讓你覺得有精神", score: "E" },
+      { type: "B", answer: "讓你覺得累", score: "I" },
     ],
   },
   {
     no: 37,
-    question: "你更常是：",
+    question: "你比較常是：",
     answerOptions: [
-      { type: "A", answer: "一個實際的人", score: "S" },
-      { type: "B", answer: "一個異想天開的人", score: "N" },
+      { type: "A", answer: "很實際的人", score: "S" },
+      { type: "B", answer: "很會異想天開的人", score: "N" },
     ],
   },
   {
     no: 38,
-    question: "你更可能：",
+    question: "你比較會：",
     answerOptions: [
-      { type: "A", answer: "看出別人的用處", score: "S" },
-      { type: "B", answer: "看出別人的視角", score: "N" },
+      { type: "A", answer: "看出別人的能力", score: "S" },
+      { type: "B", answer: "看懂別人的想法", score: "N" },
     ],
   },
   {
     no: 39,
-    question: "更令人滿意的是：",
+    question: "你覺得哪個比較滿意：",
     answerOptions: [
-      { type: "A", answer: "徹底討論一個問題", score: "T" },
-      { type: "B", answer: "就一個問題達成協議", score: "F" },
+      { type: "A", answer: "把一個問題討論清楚", score: "T" },
+      { type: "B", answer: "就一個問題達成共識", score: "F" },
     ],
   },
   {
     no: 40,
-    question: "更多支配你的是：",
+    question: "你比較常被什麼左右：",
     answerOptions: [
-      { type: "A", answer: "你的頭腦", score: "T" },
-      { type: "B", answer: "你的心", score: "F" },
+      { type: "A", answer: "理性思考", score: "T" },
+      { type: "B", answer: "情感反應", score: "F" },
     ],
   },
   {
     no: 41,
-    question: "你對哪種工作更感到舒適：",
+    question: "你對哪種工作覺得比較自在：",
     answerOptions: [
-      { type: "A", answer: "合同工", score: "J" },
-      { type: "B", answer: "臨時性工作", score: "P" },
+      { type: "A", answer: "有合約的工作", score: "J" },
+      { type: "B", answer: "臨時工作", score: "P" },
     ],
   },
   {
     no: 42,
-    question: "你傾向於尋找：",
+    question: "你比較偏好找：",
     answerOptions: [
-      { type: "A", answer: "有序的", score: "J" },
-      { type: "B", answer: "任何出現的", score: "P" },
+      { type: "A", answer: "有條理的事", score: "J" },
+      { type: "B", answer: "任何出現的機會", score: "P" },
     ],
   },
   {
     no: 43,
-    question: "你更喜歡：",
+    question: "你比較喜歡：",
     answerOptions: [
-      { type: "A", answer: "許多朋友但聯繫短暫", score: "E" },
+      { type: "A", answer: "認識很多朋友，但不一定很深交", score: "E" },
       {
-        type: "B", answer: "少數朋友但聯繫時間更長",
+        type: "B", answer: "朋友不多，但都是深交",
         score: "I",
       },
     ],
   },
   {
     no: 44,
-    question: "你更依賴：",
+    question: "你比較信任：",
     answerOptions: [
       { type: "A", answer: "事實", score: "S" },
       { type: "B", answer: "原則", score: "N" },
@@ -534,58 +534,58 @@ export const personalityTest: TestQuestion[] = [
   },
   {
     no: 45,
-    question: "你更感興趣的是：",
+    question: "你比較有興趣的是：",
     answerOptions: [
-      { type: "A", answer: "生產和分配", score: "S" },
-      { type: "B", answer: "設計和研究", score: "N" },
+      { type: "A", answer: "生產和配送", score: "S" },
+      { type: "B", answer: "設計和研發", score: "N" },
     ],
   },
   {
     no: 46,
-    question: "更大的讚美是：",
+    question: "你覺得哪個是更大的讚美：",
     answerOptions: [
-      { type: "A", answer: "“那是一個非常邏輯的人”", score: "T" },
-      { type: "B", answer: "“那是一個非常感性的人”", score: "F" },
+      { type: "A", answer: "「這個人很有邏輯」", score: "T" },
+      { type: "B", answer: "「這個人很有情感」", score: "F" },
     ],
   },
   {
     no: 47,
-    question: "你更看重自己的是：",
+    question: "你比較重視自己的：",
     answerOptions: [
-      { type: "A", answer: "堅定不移", score: "T" },
-      { type: "B", answer: "忠誠奉獻", score: "F" },
+      { type: "A", answer: "堅持原則", score: "T" },
+      { type: "B", answer: "對人忠誠", score: "F" },
     ],
   },
   {
     no: 48,
-    question: "你更常喜歡哪種表達方式：",
+    question: "你比較喜歡哪種說話方式：",
     answerOptions: [
-      { type: "A", answer: "確定的、不可更改的說法", score: "J" },
-      { type: "B", answer: "暫時的、還在討論中的說法", score: "P" },
+      { type: "A", answer: "確定的、不會變的說法", score: "J" },
+      { type: "B", answer: "暫時的、還可以討論的說法", score: "P" },
     ],
   },
   {
     no: 49,
-    question: "你在什麼時候感覺更舒服：",
+    question: "你在什麼時候覺得比較輕鬆：",
     answerOptions: [
-      { type: "A", answer: "做出決定之後", score: "J" },
-      { type: "B", answer: "做決定之前", score: "P" },
+      { type: "A", answer: "已經決定之後", score: "J" },
+      { type: "B", answer: "還在考慮的時候", score: "P" },
     ],
   },
   {
     no: 50,
-    question: "你：",
+    question: "對於不認識的人，你：",
     answerOptions: [
       {
-        type: "A", answer: "與陌生人輕鬆並詳細地交談",
+        type: "A", answer: "可以跟他們輕鬆地聊很多",
         score: "E",
       },
-      { type: "B", answer: "與陌生人沒什麼可說的", score: "I" },
+      { type: "B", answer: "跟他們沒什麼好說的", score: "I" },
     ],
   },
   {
     no: 51,
-    question: "你更傾向於信任你的：",
+    question: "你比較相信自己的：",
     answerOptions: [
       { type: "A", answer: "經驗", score: "S" },
       { type: "B", answer: "直覺", score: "N" },
@@ -593,23 +593,23 @@ export const personalityTest: TestQuestion[] = [
   },
   {
     no: 52,
-    question: "你覺得自己：",
+    question: "你覺得自己比較：",
     answerOptions: [
-      { type: "A", answer: "注重實際多於有創造力", score: "S" },
-      { type: "B", answer: "有創造力多於注重實際", score: "N" },
+      { type: "A", answer: "實際而不是很有創意", score: "S" },
+      { type: "B", answer: "有創意而不是很實際", score: "N" },
     ],
   },
   {
     no: 53,
-    question: "以下哪個人更值得讚揚：",
+    question: "你覺得哪種人比較值得讚美：",
     answerOptions: [
-      { type: "A", answer: "理智清晰的人", score: "T" },
-      { type: "B", answer: "情感強烈的人", score: "F" },
+      { type: "A", answer: "思緯清晰的人", score: "T" },
+      { type: "B", answer: "情感豐富的人", score: "F" },
     ],
   },
   {
     no: 54,
-    question: "你更傾向於是：",
+    question: "你比較傾向於：",
     answerOptions: [
       { type: "A", answer: "公正的", score: "T" },
       { type: "B", answer: "有同情心的", score: "F" },
@@ -617,144 +617,144 @@ export const personalityTest: TestQuestion[] = [
   },
   {
     no: 55,
-    question: "通常更偏好：",
+    question: "你通常比較偏好：",
     answerOptions: [
-      { type: "A", answer: "確保事情有條不紊", score: "J" },
-      { type: "B", answer: "隨遇而安", score: "P" },
+      { type: "A", answer: "把事情做得有條有理", score: "J" },
+      { type: "B", answer: "隨機應變", score: "P" },
     ],
   },
   {
     no: 56,
-    question: "在關係中大多數事情應該是：",
+    question: "你覺得在人際關係中，大部分事情應該：",
     answerOptions: [
-      { type: "A", answer: "可重新協商的", score: "J" },
-      { type: "B", answer: "隨機和依情境而變的", score: "P" },
+      { type: "A", answer: "可以再討論的", score: "J" },
+      { type: "B", answer: "隨情況變化的", score: "P" },
     ],
   },
   {
     no: 57,
-    question: "電話鈴響時你是否：",
+    question: "電話響的時候你是否：",
     answerOptions: [
-      { type: "A", answer: "急忙去第一個接電話", score: "E" },
-      { type: "B", answer: "希望別人會接", score: "I" },
+      { type: "A", answer: "會趕快去接", score: "E" },
+      { type: "B", answer: "希望有別人去接", score: "I" },
     ],
   },
   {
     no: 58,
-    question: "你更欣賞自己：",
+    question: "你比較欣賞自己的：",
     answerOptions: [
-      { type: "A", answer: "很強的現實感", score: "S" },
-      { type: "B", answer: "豐富的想像力", score: "N" },
+      { type: "A", answer: "很實際的思考", score: "S" },
+      { type: "B", answer: "豐富的創意", score: "N" },
     ],
   },
   {
     no: 59,
-    question: "你更傾向於關注：",
+    question: "你比較會注意：",
     answerOptions: [
-      { type: "A", answer: "基礎原理", score: "S" },
-      { type: "B", answer: "深層含義", score: "N" },
+      { type: "A", answer: "基本原理", score: "S" },
+      { type: "B", answer: "深層的意義", score: "N" },
     ],
   },
   {
     no: 60,
-    question: "你覺得哪種問題更大：",
+    question: "你覺得哪個問題比較嚴重：",
     answerOptions: [
-      { type: "A", answer: "太過感情用事", score: "T" },
-      { type: "B", answer: "太過理性", score: "F" },
+      { type: "A", answer: "太感情用事", score: "T" },
+      { type: "B", answer: "太理性冷酷", score: "F" },
     ],
   },
   {
     no: 61,
-    question: "你認為自己基本上是：",
+    question: "你覺得自己基本上是：",
     answerOptions: [
-      { type: "A", answer: "頭腦硬", score: "T" },
-      { type: "B", answer: "心腸軟", score: "F" },
+      { type: "A", answer: "理性型的人", score: "T" },
+      { type: "B", answer: "情感型的人", score: "F" },
     ],
   },
   {
     no: 62,
-    question: "哪種情境更吸引你：",
+    question: "你比較喜歡哪種狀況：",
     answerOptions: [
-      { type: "A", answer: "有結構和計劃的", score: "J" },
-      { type: "B", answer: "無結構和未計劃的", score: "P" },
+      { type: "A", answer: "有組織有計劃的", score: "J" },
+      { type: "B", answer: "沒有組織沒有計劃的", score: "P" },
     ],
   },
   {
     no: 63,
-    question: "你是一個更傾向於：",
+    question: "你比較傾向於：",
     answerOptions: [
-      { type: "A", answer: "有規律的而不是異想天開的", score: "J" },
-      { type: "B", answer: "異想天開的而不是有規律的", score: "P" },
+      { type: "A", answer: "有條理而不是異想天開", score: "J" },
+      { type: "B", answer: "異想天開而不是有條理", score: "P" },
     ],
   },
   {
     no: 64,
-    question: "你更傾向於是：",
+    question: "你比較傾向於：",
     answerOptions: [
-      { type: "A", answer: "容易接近", score: "E" },
-      { type: "B", answer: "有些保留", score: "I" },
+      { type: "A", answer: "容易親近", score: "E" },
+      { type: "B", answer: "比較保守", score: "I" },
     ],
   },
   {
     no: 65,
-    question: "在寫作中，你更喜歡哪種表達方式：",
+    question: "在寫文章時，你比較喜歡：",
     answerOptions: [
-      { type: "A", answer: "更直接明瞭的", score: "S" },
-      { type: "B", answer: "更富有比喻性的", score: "N" },
+      { type: "A", answer: "直接明白的寫法", score: "S" },
+      { type: "B", answer: "富有比喻的寫法", score: "N" },
     ],
   },
   {
     no: 66,
-    question: "對你來說更難的是：",
+    question: "你覺得哪個比較難：",
     answerOptions: [
-      { type: "A", answer: "理解他人", score: "S" },
-      { type: "B", answer: "利用他人", score: "N" },
+      { type: "A", answer: "理解別人", score: "S" },
+      { type: "B", answer: "利用別人", score: "N" },
     ],
   },
   {
     no: 67,
-    question: "你更希望自己擁有：",
+    question: "你比較希望自己有：",
     answerOptions: [
-      { type: "A", answer: "清晰的理性", score: "T" },
-      { type: "B", answer: "強大的同情心", score: "F" },
+      { type: "A", answer: "清晰的理智", score: "T" },
+      { type: "B", answer: "強烈的同理心", score: "F" },
     ],
   },
   {
     no: 68,
-    question: "哪種問題更大：",
+    question: "你覺得哪個問題比較大：",
     answerOptions: [
-      { type: "A", answer: "沒有分辨力", score: "T" },
-      { type: "B", answer: "過於挑剔", score: "F" },
+      { type: "A", answer: "沒有判斷力", score: "T" },
+      { type: "B", answer: "太挑剔", score: "F" },
     ],
   },
   {
     no: 69,
-    question: "你更喜歡：",
+    question: "你比較喜歡：",
     answerOptions: [
       { 
         type: "A", 
-        answer: "有計劃的活動", 
+        answer: "有安排的活動", 
         score: "J" 
       },
       { 
         type: "B", 
-        answer: "無計劃的活動", 
+        answer: "隨性的活動", 
         score: "P" 
       },
     ],
   },
   {
     no: 70,
-    question: "你傾向於更多地是：",
+    question: "你比較常是：",
     answerOptions: [
       { 
         type: "A", 
-        answer: "深思熟慮的", 
+        answer: "會想很久再決定的", 
         score: "J" 
       },
       { 
         type: "B", 
-        answer: "隨性所至的", 
+        answer: "想到就做的", 
         score: "P" 
       },
     ],
