@@ -288,7 +288,7 @@ export async function saveOTPTokenToFirebase(token: OTPToken): Promise<boolean> 
 }
 
 // 從 Firebase 獲取所有 OTP Tokens
-export async function getAllOTPTokensFromFirebase(): Promise<OTPToken[]> {
+export async function getAllOTPTokensFromFirebase(includeExpired: boolean = false): Promise<OTPToken[]> {
   try {
     if (!database) {
       console.error('Firebase 未初始化');
@@ -307,8 +307,12 @@ export async function getAllOTPTokensFromFirebase(): Promise<OTPToken[]> {
         tokens.push(otpToken);
       });
 
-      // 過濾掉已過期的 tokens
-      return tokens.filter(token => token.expiresAt > Date.now());
+      // 根據參數決定是否過濾已過期的 tokens
+      if (includeExpired) {
+        return tokens;
+      } else {
+        return tokens.filter(token => token.expiresAt > Date.now());
+      }
     }
 
     return [];

@@ -78,14 +78,15 @@ export default function TestQuestion() {
       getQuestionAnswerScore(index + 1, answer)
     );
 
+    // 獲取 OTP Token（如果有的話）
+    const otpToken = extractOTPFromUrl();
+
     const testResult = {
       testAnswers: userTestAnswers,
       testScores,
       timestamp,
+      otpToken: otpToken || undefined,
     };
-
-    // 獲取 OTP Token（如果有的話）
-    const otpToken = extractOTPFromUrl();
 
     // 同時保存到本地和 Firebase
     try {

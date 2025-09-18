@@ -84,7 +84,7 @@ export async function saveOTPToken(token: OTPToken): Promise<void> {
 }
 
 /**
- * 獲取本地 OTP Tokens
+ * 獲取本地 OTP Tokens（只返回未過期的）
  */
 function getLocalOTPTokens(): OTPToken[] {
   try {
@@ -101,17 +101,34 @@ function getLocalOTPTokens(): OTPToken[] {
 }
 
 /**
+ * 獲取所有本地 OTP Tokens（包含已過期的）
+ */
+export function getAllLocalOTPTokens(): OTPToken[] {
+  try {
+    const encrypted = localStorage.getItem(OTP_STORAGE_KEY);
+    if (!encrypted) return [];
+
+    const tokens = decryptData<OTPToken[]>(encrypted);
+    // 返回所有 tokens，包括已過期的
+    return tokens;
+  } catch (error) {
+    console.error('載入本地 OTP Tokens 失敗:', error);
+    return [];
+  }
+}
+
+/**
  * 獲取所有 OTP Tokens（本地 + Firebase），正確合併使用狀態
  */
-export async function getAllOTPTokens(): Promise<OTPToken[]> {
+export async function getAllOTPTokens(includeExpired: boolean = false): Promise<OTPToken[]> {
   try {
     // 獲取本地 tokens
-    const localTokens = getLocalOTPTokens();
+    const localTokens = includeExpired ? getAllLocalOTPTokens() : getLocalOTPTokens();
 
     // 嘗試獲取 Firebase tokens
     let firebaseTokens: OTPToken[] = [];
     try {
-      firebaseTokens = await getAllOTPTokensFromFirebase();
+      firebaseTokens = await getAllOTPTokensFromFirebase(includeExpired);
     } catch (error) {
       console.warn('獲取 Firebase OTP Tokens 失敗:', error);
     }

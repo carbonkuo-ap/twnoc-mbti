@@ -64,6 +64,7 @@ import Image from 'next/image';
 import { Highlight } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import { personalityTypeDescriptions } from '../../data/personality-descriptions';
+import { personalityClasses } from '../../data/personality-classes';
 import { isAuthenticated, logoutAdmin, getAdminSession, AdminUser } from '../../lib/auth';
 import {
   getAllSavedTestResult,
@@ -114,6 +115,7 @@ export default function AdminDashboard() {
   const [firebaseTests, setFirebaseTests] = useState<FirebaseTestResult[]>([]);
   const [otpUsageStats, setOtpUsageStats] = useState<{ [token: string]: number }>({});
   const [selectedPersonalityType, setSelectedPersonalityType] = useState<string>('');
+  const [selectedTestScores, setSelectedTestScores] = useState<string[]>([]);
   const router = useRouter();
   const toast = useToast();
   const { isOpen: isOtpModalOpen, onOpen: onOtpModalOpen, onClose: onOtpModalClose } = useDisclosure();
@@ -202,8 +204,8 @@ export default function AdminDashboard() {
 
   const loadOTPData = async () => {
     try {
-      // 獲取合併後的 OTP tokens（包含 Firebase 使用狀態）
-      const tokens = await getAllOTPTokens();
+      // 獲取合併後的 OTP tokens（包含 Firebase 使用狀態和已過期的 tokens）
+      const tokens = await getAllOTPTokens(true); // includeExpired = true
       setOtpTokens(tokens);
 
       // 重新計算統計，基於合併後的資料
@@ -454,8 +456,9 @@ export default function AdminDashboard() {
     reader.readAsText(file);
   };
 
-  const handlePersonalityTypeClick = (personalityType: string) => {
+  const handlePersonalityTypeClick = (personalityType: string, testScores?: string[]) => {
     setSelectedPersonalityType(personalityType);
+    setSelectedTestScores(testScores || []);
     onReportModalOpen();
   };
 
@@ -739,8 +742,10 @@ export default function AdminDashboard() {
                           <Tbody>
                             {stats.recentTests.map((test, index) => {
                               const personalityClassGroup = getPersonalityClassGroupByTestScores(test.testScores);
-                              const isFirebaseTest = 'otpToken' in test;
+                              const isFirebaseTest = 'otpToken' in test && typeof (test as any).otpToken === 'string' && (test as FirebaseTestResult).completedAt !== undefined;
                               const firebaseTest = isFirebaseTest ? test as FirebaseTestResult : null;
+                              const localTest = !isFirebaseTest ? test as TestResult : null;
+                              const testOtpToken = firebaseTest?.otpToken || localTest?.otpToken;
 
                               return (
                                 <Tr key={index}>
@@ -749,7 +754,7 @@ export default function AdminDashboard() {
                                     <Badge
                                       colorScheme={getTypeColor(personalityClassGroup.type)}
                                       cursor="pointer"
-                                      onClick={() => handlePersonalityTypeClick(personalityClassGroup.type)}
+                                      onClick={() => handlePersonalityTypeClick(personalityClassGroup.type, test.testScores)}
                                       _hover={{ transform: 'scale(1.05)' }}
                                     >
                                       {personalityClassGroup.type}
@@ -764,13 +769,13 @@ export default function AdminDashboard() {
                                     </Badge>
                                   </Td>
                                   <Td>
-                                    {firebaseTest?.otpToken ? (
+                                    {testOtpToken ? (
                                       <VStack align="start" spacing={1}>
                                         <Text fontSize="xs" fontFamily="mono">
-                                          {firebaseTest.otpToken.substring(0, 8)}...
+                                          {testOtpToken.substring(0, 8)}...
                                         </Text>
                                         <Badge size="xs" colorScheme="orange">
-                                          使用 {otpUsageStats[firebaseTest.otpToken] || 1} 次
+                                          使用 {otpUsageStats[testOtpToken] || 1} 次
                                         </Badge>
                                       </VStack>
                                     ) : (
@@ -783,7 +788,7 @@ export default function AdminDashboard() {
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      onClick={() => handlePersonalityTypeClick(personalityClassGroup.type)}
+                                      onClick={() => handlePersonalityTypeClick(personalityClassGroup.type, test.testScores)}
                                     >
                                       查看報告
                                     </Button>
@@ -1059,6 +1064,47 @@ export default function AdminDashboard() {
                         {personalityClassGroup.epithet}
                       </Heading>
                     </Flex>
+
+                    {/* 分數統計 */}
+                    {selectedTestScores.length > 0 && (
+                      <Box>
+                        <Heading size="md" mb={3} color="blue.600">📊 分數統計</Heading>
+                        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4}>
+                          {personalityClasses.map((personalityClass, index) => {
+                            const statsColorScheme = ['red', 'blue', 'yellow', 'purple', 'orange', 'green', 'pink', 'teal'];
+                            const testScoresFiltered = selectedTestScores.filter(
+                              (score) => score === personalityClass.type
+                            );
+                            const percentage = ((testScoresFiltered.length / selectedTestScores.length) * 100)
+                              .toFixed(2)
+                              .replace(/[.,]0+$/, "");
+
+                            return (
+                              <Flex
+                                key={index}
+                                p={3}
+                                rounded="md"
+                                direction="column"
+                                bg={`${statsColorScheme[index]}.500`}
+                                color="white"
+                              >
+                                <Text fontWeight="semibold" fontSize="sm" mb={2}>
+                                  {personalityClass.description}
+                                </Text>
+                                <Flex justify="space-between" align="center">
+                                  <Text fontWeight="bold" fontSize="lg">
+                                    {percentage}%
+                                  </Text>
+                                  <Text fontSize="sm">
+                                    ({testScoresFiltered.length})
+                                  </Text>
+                                </Flex>
+                              </Flex>
+                            );
+                          })}
+                        </SimpleGrid>
+                      </Box>
+                    )}
 
                     {/* 性格描述 */}
                     <Box>

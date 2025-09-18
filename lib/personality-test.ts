@@ -61,6 +61,7 @@ export interface TestResult {
   timestamp: number;
   testAnswers: TestAnswerOption["type"][];
   testScores: PersonalityClass["type"][];
+  otpToken?: string;
   isEncrypted?: boolean;
   encryptedData?: string;
 }
@@ -224,6 +225,7 @@ export function saveTestResult(testResult: {
   timestamp: number;
   testAnswers: TestAnswerOption["type"][];
   testScores: PersonalityClass["type"][];
+  otpToken?: string;
 }) {
   return Future.make<Result<number, Error>>((resolve) => {
     try {
