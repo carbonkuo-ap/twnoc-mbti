@@ -1,4 +1,4 @@
-import { encryptData, decryptDataWithFallback as decryptData } from './encryption';
+import { encryptData, decryptData } from './encryption';
 import { hashPassword, verifyPassword, generateFingerprint, generateCSRFToken } from './security';
 
 export interface AdminUser {

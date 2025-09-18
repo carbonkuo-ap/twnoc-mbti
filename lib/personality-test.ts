@@ -2,7 +2,7 @@ import { openDB } from "idb";
 import { Option, Future, Result } from "@swan-io/boxed";
 import { personalityTest } from "../data/personality-test";
 import { personalityClassGroup } from "../data/personality-class-groups";
-import { encryptData, decryptDataWithFallback as decryptData, validateEncryptedData } from "./encryption";
+import { encryptData, decryptData, validateEncryptedData } from "./encryption";
 
 export interface TestQuestion {
   no: number;
@@ -163,6 +163,7 @@ export function getSavedTestResult(id: number) {
               const decryptedData = decryptData(data.encryptedData);
               resolve(Result.Ok(Option.Some(decryptedData)));
             } catch (error) {
+              console.error('解密測試結果失敗:', error);
               resolve(Result.Error(new Error('資料解密失敗')));
             }
           } else {

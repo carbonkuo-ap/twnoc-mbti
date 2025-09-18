@@ -39,7 +39,7 @@ import {
   TestResult,
   getPersonalityClassGroupByTestScores
 } from '../../lib/personality-test';
-import { decryptDataWithFallback as decryptData } from '../../lib/encryption';
+import { decryptData } from '../../lib/encryption';
 
 interface TestStats {
   totalTests: number;
