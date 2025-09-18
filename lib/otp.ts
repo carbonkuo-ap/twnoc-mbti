@@ -11,6 +11,7 @@ export interface OTPToken {
   metadata?: {
     description?: string;
     createdBy?: string;
+    allowMultipleUse?: boolean;
   };
 }
 

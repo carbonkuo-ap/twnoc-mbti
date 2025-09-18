@@ -54,7 +54,7 @@ import {
   Tab,
   TabPanel
 } from '@chakra-ui/react';
-import { FiUsers, FiActivity, FiBarChart, FiLogOut, FiKey, FiCopy, FiTrash2, FiQrCode, FiDownload, FiUpload } from 'react-icons/fi';
+import { FiUsers, FiActivity, FiBarChart, FiLogOut, FiKey, FiCopy, FiTrash2, FiCode, FiDownload, FiUpload } from 'react-icons/fi';
 import dayjs from 'dayjs';
 import { isAuthenticated, logoutAdmin, getAdminSession, AdminUser } from '../../lib/auth';
 import {
