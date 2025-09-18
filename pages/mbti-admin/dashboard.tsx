@@ -60,7 +60,7 @@ export default function AdminDashboard() {
     // 檢查認證狀態
     const checkAuth = async () => {
       if (!(await isAuthenticated())) {
-        router.push('/mbti-admin');
+        router.push('./index');
         return;
       }
       loadDashboardData();
@@ -155,7 +155,7 @@ export default function AdminDashboard() {
       duration: 3000,
       isClosable: true,
     });
-    router.push('/mbti-admin');
+    router.push('./index');
   };
 
   const formatDate = (dateString: string) => {
