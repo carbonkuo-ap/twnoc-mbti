@@ -23,7 +23,7 @@ export default function TestResultPage() {
     if (router.isReady) {
       setTestResult(AsyncData.Loading());
 
-      const id = parseInt(router.query.testResultId as string);
+      const id = router.query.testResultId as string;
 
       getSavedTestResult(id).tap((result) =>
         setTestResult(AsyncData.Done(result))

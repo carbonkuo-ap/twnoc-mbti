@@ -44,6 +44,7 @@ export default function OTPVerification({ isOpen, onClose, onVerified }: OTPVeri
         setIsAutoChecking(false);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const handleVerify = async (tokenToVerify?: string) => {
@@ -72,6 +73,10 @@ export default function OTPVerification({ isOpen, onClose, onVerified }: OTPVeri
       setIsVerifying(false);
       setIsAutoChecking(false);
     }
+  };
+
+  const handleButtonClick = () => {
+    handleVerify();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -133,7 +138,7 @@ export default function OTPVerification({ isOpen, onClose, onVerified }: OTPVeri
             </Button>
             <Button
               colorScheme="primary"
-              onClick={handleVerify}
+              onClick={handleButtonClick}
               isLoading={isVerifying}
               loadingText="驗證中..."
               isDisabled={!otpToken.trim()}
