@@ -165,34 +165,14 @@ export default function AdminDashboard() {
       setIsLoading(true);
       setError('');
 
-      // 獲取所有測試結果
-      const result = await getAllSavedTestResult();
+      // 並行載入資料以減少載入時間
+      const [firebaseResults] = await Promise.all([
+        getAllTestResultsFromFirebase(),
+        loadOTPData() // 並行載入 OTP 資料
+      ]);
 
-      result.match({
-        Ok: (option) => {
-          option.match({
-            Some: (testResults) => {
-              const processedStats = processTestResults(testResults);
-              setStats(processedStats);
-            },
-            None: () => {
-              setStats({
-                totalTests: 0,
-                todayTests: 0,
-                popularType: 'N/A',
-                recentTests: []
-              });
-            }
-          });
-        },
-        Error: (err) => {
-          console.error('載入測試資料失敗:', err);
-          setError('無法載入測試資料');
-        }
-      });
-
-      // 載入 OTP 資料
-      loadOTPData();
+      const processedStats = processTestResults(firebaseResults);
+      setStats(processedStats);
     } catch (error) {
       console.error('載入儀表板資料失敗:', error);
       setError('載入資料時發生錯誤');
@@ -485,23 +465,16 @@ export default function AdminDashboard() {
     );
   };
 
-  const processTestResults = (localTests: TestResult[]): TestStats => {
-    // 合併本地和 Firebase 資料
-    const allTests = [...localTests, ...firebaseTests];
-
-    // 去除重複的測試（基於時間戳）
-    const uniqueTests = allTests.filter((test, index, self) =>
-      index === self.findIndex(t => t.timestamp === test.timestamp)
-    );
-
+  const processTestResults = (firebaseResults: FirebaseTestResult[]): TestStats => {
+    // Firebase-only 架構，只處理 Firebase 資料
     const today = dayjs().startOf('day');
-    const todayTests = uniqueTests.filter(test =>
+    const todayTests = firebaseResults.filter(test =>
       dayjs(test.timestamp).isAfter(today)
     ).length;
 
     // 統計最受歡迎的類型
     const typeCount: Record<string, number> = {};
-    uniqueTests.forEach(test => {
+    firebaseResults.forEach(test => {
       const personalityClassGroup = getPersonalityClassGroupByTestScores(test.testScores);
       const type = personalityClassGroup.type;
       typeCount[type] = (typeCount[type] || 0) + 1;
@@ -511,17 +484,17 @@ export default function AdminDashboard() {
       .sort(([,a], [,b]) => b - a)[0]?.[0] || 'N/A';
 
     // 最近的測試（最多顯示20個）
-    const recentTests = [...uniqueTests]
+    const recentTests = [...firebaseResults]
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, 20);
 
     return {
-      totalTests: uniqueTests.length,
+      totalTests: firebaseResults.length,
       todayTests,
       popularType,
       recentTests,
-      firebaseTests,
-      localTests
+      firebaseTests: firebaseResults,
+      localTests: [] // Firebase-only，沒有本地資料
     };
   };
 
@@ -551,13 +524,13 @@ export default function AdminDashboard() {
     return colors[type] || 'gray';
   };
 
-  if (isLoading) {
+  if (isLoading && !stats) {
     return (
       <Container maxW="6xl" py={8}>
         <Flex justify="center" align="center" h="50vh">
           <VStack spacing={4}>
-            <Spinner size="xl" />
-            <Text>載入中...</Text>
+            <Spinner size="xl" color="primary.500" />
+            <Text>載入儀表板資料中...</Text>
           </VStack>
         </Flex>
       </Container>
@@ -749,10 +722,9 @@ export default function AdminDashboard() {
                           <Tbody>
                             {stats.recentTests.map((test, index) => {
                               const personalityClassGroup = getPersonalityClassGroupByTestScores(test.testScores);
-                              const isFirebaseTest = 'otpToken' in test && typeof (test as any).otpToken === 'string' && (test as FirebaseTestResult).completedAt !== undefined;
-                              const firebaseTest = isFirebaseTest ? test as FirebaseTestResult : null;
-                              const localTest = !isFirebaseTest ? test as TestResult : null;
-                              const testOtpToken = firebaseTest?.otpToken || localTest?.otpToken;
+                              // Firebase-only 架構，所有測試都來自 Firebase
+                              const firebaseTest = test as FirebaseTestResult;
+                              const testOtpToken = firebaseTest?.otpToken;
 
                               return (
                                 <Tr key={index}>
@@ -769,14 +741,14 @@ export default function AdminDashboard() {
                                   </Td>
                                   <Td>
                                     <Badge
-                                      colorScheme={isFirebaseTest ? 'green' : 'blue'}
+                                      colorScheme="green"
                                       size="sm"
                                     >
-                                      {isFirebaseTest ? 'Firebase' : '本地'}
+                                      Firebase
                                     </Badge>
                                   </Td>
                                   <Td>
-                                    {testOtpToken ? (
+                                    {testOtpToken && testOtpToken.trim() !== '' ? (
                                       <VStack align="start" spacing={1}>
                                         <Text fontSize="xs" fontFamily="mono">
                                           {testOtpToken.substring(0, 8)}...

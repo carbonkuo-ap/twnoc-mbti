@@ -32,6 +32,7 @@ export default function OTPVerification({ isOpen, onClose, onVerified }: OTPVeri
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState('');
   const [isAutoChecking, setIsAutoChecking] = useState(true);
+  const [autoVerifySuccess, setAutoVerifySuccess] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -62,7 +63,15 @@ export default function OTPVerification({ isOpen, onClose, onVerified }: OTPVeri
       const validation = await validateOTPTokenAsync(token.trim());
 
       if (validation.valid) {
-        onVerified(token.trim());
+        // 如果是自動驗證，顯示成功訊息一秒後再關閉
+        if (tokenToVerify) {
+          setAutoVerifySuccess(true);
+          setTimeout(() => {
+            onVerified(token.trim());
+          }, 1000);
+        } else {
+          onVerified(token.trim());
+        }
       } else {
         setError(validation.error || '無效的 OTP Token');
       }
@@ -96,10 +105,20 @@ export default function OTPVerification({ isOpen, onClose, onVerified }: OTPVeri
         <ModalHeader>驗證測試授權</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {isAutoChecking ? (
+          {isAutoChecking || autoVerifySuccess ? (
             <Box textAlign="center" py={8}>
-              <Spinner size="lg" color="primary.500" />
-              <Text mt={4}>正在檢查授權...</Text>
+              {autoVerifySuccess ? (
+                <>
+                  <Box color="green.500" fontSize="4xl" mb={4}>✓</Box>
+                  <Text mt={4} color="green.600" fontWeight="bold">授權驗證成功！</Text>
+                  <Text mt={2} color="gray.600">正在進入測試...</Text>
+                </>
+              ) : (
+                <>
+                  <Spinner size="lg" color="primary.500" />
+                  <Text mt={4}>正在檢查授權...</Text>
+                </>
+              )}
             </Box>
           ) : (
             <form onSubmit={handleSubmit}>
@@ -131,7 +150,7 @@ export default function OTPVerification({ isOpen, onClose, onVerified }: OTPVeri
           )}
         </ModalBody>
 
-        {!isAutoChecking && (
+        {!isAutoChecking && !autoVerifySuccess && (
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={onClose}>
               取消

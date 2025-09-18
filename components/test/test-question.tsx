@@ -97,8 +97,6 @@ export default function TestQuestion() {
       const firebaseSuccess = await saveTestResultToFirebase(testResult);
 
       if (firebaseSuccess) {
-        setUserTestAnswers([]);
-
         // 如果使用了 OTP token，標記為已使用
         if (otpToken) {
           try {
@@ -110,7 +108,18 @@ export default function TestQuestion() {
           }
         }
 
-        router.replace(`/test/result/?testResultId=${testResult.timestamp}`);
+        // 清空答案
+        setUserTestAnswers([]);
+
+        // 確保導航成功，包含錯誤處理
+        try {
+          await router.replace(`/test/result/?testResultId=${testResult.timestamp}`);
+        } catch (navError) {
+          console.error('導航至結果頁面失敗:', navError);
+          // 如果導航失敗，使用 window.location 作為備用方案
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_PATH || '';
+          window.location.href = `${baseUrl}/test/result/?testResultId=${testResult.timestamp}`;
+        }
       } else {
         console.error('Firebase 保存失敗');
         alert('保存測試結果失敗，請稍後再試');

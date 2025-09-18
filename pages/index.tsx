@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import {
@@ -115,23 +114,6 @@ export default function HomePage() {
             >
               開始測試
             </Button>
-
-            <Divider />
-
-            <Text fontSize="sm" color="gray.500" textAlign="center">
-              或者
-            </Text>
-
-            <Link href="/test">
-              <Button
-                w="full"
-                variant="outline"
-                colorScheme="primary"
-                rightIcon={<FiArrowRight size={16} />}
-              >
-                直接進入 (需要驗證)
-              </Button>
-            </Link>
           </VStack>
         </Flex>
         <Image

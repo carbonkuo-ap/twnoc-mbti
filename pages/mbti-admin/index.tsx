@@ -114,13 +114,14 @@ export default function AdminLogin() {
 
         toast({
           title: '登入成功',
-          description: '歡迎使用 MBTI 管理後台',
+          description: '正在進入管理後台...',
           status: 'success',
-          duration: 3000,
+          duration: 2000,
           isClosable: true,
         });
 
-        router.push('/mbti-admin/dashboard');
+        // 使用 replace 而不是 push 來避免返回按鈕問題
+        await router.replace('/mbti-admin/dashboard');
       } else {
         // 登入失敗
         recordLoginFailure();
