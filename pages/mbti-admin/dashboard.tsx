@@ -41,6 +41,7 @@ import {
   useDisclosure,
   FormControl,
   FormLabel,
+  Input,
   NumberInput,
   NumberInputField,
   NumberInputStepper,

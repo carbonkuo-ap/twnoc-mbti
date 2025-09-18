@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import {
   Container,
@@ -53,7 +53,7 @@ export default function ReportPage() {
       loadPersonalityData(type);
       loadPersonalityStats(type);
     }
-  }, [type]);
+  }, [type, loadPersonalityStats]);
 
   const loadPersonalityData = (personalityType: string) => {
     const data = personalityClassGroup.find(p => p.type === personalityType);
@@ -64,7 +64,7 @@ export default function ReportPage() {
     }
   };
 
-  const loadPersonalityStats = async (personalityType: string) => {
+  const loadPersonalityStats = useCallback(async (personalityType: string) => {
     try {
       setIsLoading(true);
       const result = await getAllSavedTestResult();
@@ -97,7 +97,7 @@ export default function ReportPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const calculatePersonalityStats = (testResults: TestResult[], targetType: string): PersonalityStats => {
     const totalTests = testResults.length;
