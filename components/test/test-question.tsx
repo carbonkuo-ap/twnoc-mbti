@@ -81,12 +81,16 @@ export default function TestQuestion() {
     // 獲取 OTP Token（如果有的話）
     const otpToken = extractOTPFromUrl();
 
-    const testResult = {
+    const testResult: any = {
       testAnswers: userTestAnswers,
       testScores,
       timestamp,
-      otpToken: otpToken || undefined,
     };
+
+    // 只有當 OTP Token 存在且非空時才添加該欄位
+    if (otpToken && otpToken.trim() !== '') {
+      testResult.otpToken = otpToken;
+    }
 
     // 同時保存到本地和 Firebase
     try {
@@ -100,7 +104,7 @@ export default function TestQuestion() {
         .tapOk(async (id) => {
           // 嘗試保存到 Firebase
           try {
-            const firebaseSuccess = await saveTestResultToFirebase(testResult, otpToken || undefined);
+            const firebaseSuccess = await saveTestResultToFirebase(testResult);
             console.log('Firebase 保存結果:', firebaseSuccess ? '成功' : '失敗');
           } catch (firebaseError) {
             console.warn('Firebase 保存失敗:', firebaseError);

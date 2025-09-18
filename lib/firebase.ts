@@ -40,7 +40,7 @@ export interface FirebaseTestResult extends TestResult {
 }
 
 // 儲存測試結果到 Firebase
-export async function saveTestResultToFirebase(testResult: TestResult, otpToken?: string): Promise<boolean> {
+export async function saveTestResultToFirebase(testResult: TestResult): Promise<boolean> {
   try {
     if (!database) {
       console.error('Firebase 未初始化');
@@ -55,10 +55,14 @@ export async function saveTestResultToFirebase(testResult: TestResult, otpToken?
 
     const firebaseResult: FirebaseTestResult = {
       ...testResult,
-      otpToken: otpToken || '',
       deviceInfo,
       completedAt: Date.now()
     };
+
+    // 只有當 otpToken 存在且非空時才添加該欄位
+    if (testResult.otpToken && testResult.otpToken.trim() !== '') {
+      firebaseResult.otpToken = testResult.otpToken;
+    }
 
     // 儲存到 Firebase
     const testResultsRef = ref(database, 'testResults');
@@ -66,8 +70,8 @@ export async function saveTestResultToFirebase(testResult: TestResult, otpToken?
     await set(newResultRef, firebaseResult);
 
     // 如果有 OTP Token，更新使用記錄
-    if (otpToken) {
-      await updateOTPUsageInFirebase(otpToken, newResultRef.key!);
+    if (testResult.otpToken && testResult.otpToken.trim() !== '') {
+      await updateOTPUsageInFirebase(testResult.otpToken, newResultRef.key!);
     }
 
     console.log('測試結果已儲存到 Firebase:', newResultRef.key);
