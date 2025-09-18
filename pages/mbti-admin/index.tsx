@@ -48,7 +48,7 @@ export default function AdminLogin() {
     // 如果已經登入，直接跳轉到儀表板
     const checkAuth = async () => {
       if (await isAuthenticated()) {
-        router.push('./dashboard');
+        router.push('/mbti-admin/dashboard');
       }
     };
     checkAuth();
@@ -120,7 +120,7 @@ export default function AdminLogin() {
           isClosable: true,
         });
 
-        router.push('./dashboard');
+        router.push('/mbti-admin/dashboard');
       } else {
         // 登入失敗
         recordLoginFailure();
