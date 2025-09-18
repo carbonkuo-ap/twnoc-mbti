@@ -48,13 +48,6 @@ export default function ReportPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (type && typeof type === 'string') {
-      loadPersonalityData(type);
-      loadPersonalityStats(type);
-    }
-  }, [type, loadPersonalityStats]);
-
   const loadPersonalityData = (personalityType: string) => {
     const data = personalityClassGroup.find(p => p.type === personalityType);
     if (data) {
@@ -98,6 +91,13 @@ export default function ReportPage() {
       setIsLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (type && typeof type === 'string') {
+      loadPersonalityData(type);
+      loadPersonalityStats(type);
+    }
+  }, [type, loadPersonalityStats]);
 
   const calculatePersonalityStats = (testResults: TestResult[], targetType: string): PersonalityStats => {
     const totalTests = testResults.length;
