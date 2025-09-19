@@ -128,11 +128,24 @@ export default function AdminDashboard() {
   useEffect(() => {
     // 檢查認證狀態
     const checkAuth = async () => {
-      if (!(await isAuthenticated())) {
-        router.push('/mbti-admin');
-        return;
+      console.log('檢查認證狀態...');
+      try {
+        const authResult = await isAuthenticated();
+        console.log('認證結果:', authResult);
+
+        if (!authResult) {
+          console.log('未認證，跳轉到登入頁');
+          router.push('/mbti-admin');
+          return;
+        }
+
+        console.log('認證成功，載入儀表板資料');
+        loadDashboardData();
+      } catch (error) {
+        console.error('認證檢查失敗:', error);
+        setError('認證檢查失敗');
+        setIsLoading(false);
       }
-      loadDashboardData();
     };
 
     checkAuth();
@@ -166,21 +179,49 @@ export default function AdminDashboard() {
 
   const loadDashboardData = async () => {
     try {
+      console.log('開始載入儀表板資料...');
       setIsLoading(true);
       setError('');
 
-      // 並行載入資料以減少載入時間
-      const [firebaseResults] = await Promise.all([
-        getAllTestResultsFromFirebase(),
-        loadOTPData() // 並行載入 OTP 資料
-      ]);
+      // 設定超時保護 (10秒)
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('載入超時')), 10000)
+      );
 
+      console.log('開始載入 Firebase 測試結果...');
+      // 先載入測試結果
+      const firebaseResults = await Promise.race([
+        getAllTestResultsFromFirebase(),
+        timeoutPromise
+      ]) as any[];
+
+      console.log('Firebase 結果載入完成，結果數量:', firebaseResults.length);
       const processedStats = processTestResults(firebaseResults);
+      console.log('統計資料處理完成:', processedStats);
       setStats(processedStats);
+
+      console.log('開始載入 OTP 資料...');
+      // 然後載入 OTP 資料（不阻塞主要資料）
+      loadOTPData().catch(error => {
+        console.error('載入 OTP 資料失敗:', error);
+      });
+
+      console.log('儀表板資料載入完成');
     } catch (error) {
       console.error('載入儀表板資料失敗:', error);
-      setError('載入資料時發生錯誤');
+      setError(`載入資料時發生錯誤: ${error.message || error}`);
+
+      // 即使出錯也要設定一個空的 stats 讓 UI 能顯示
+      setStats({
+        totalTests: 0,
+        todayTests: 0,
+        popularType: 'N/A',
+        recentTests: [],
+        firebaseTests: [],
+        localTests: []
+      });
     } finally {
+      console.log('設定載入狀態為 false');
       setIsLoading(false);
     }
   };
