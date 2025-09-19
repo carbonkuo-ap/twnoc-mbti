@@ -57,15 +57,12 @@ import {
   TabPanel,
   SimpleGrid,
   UnorderedList,
-  ListItem,
-  Wrap,
-  WrapItem
+  ListItem
 } from '@chakra-ui/react';
-import { FiUsers, FiActivity, FiBarChart, FiLogOut, FiKey, FiCopy, FiTrash2, FiCode, FiDownload, FiUpload } from 'react-icons/fi';
+import { FiUsers, FiActivity, FiBarChart, FiLogOut, FiKey, FiCopy, FiTrash2, FiDownload, FiUpload } from 'react-icons/fi';
 import Image from 'next/image';
 import { Highlight } from '@chakra-ui/react';
 import dayjs from 'dayjs';
-import { personalityTypeDescriptions } from '../../data/personality-descriptions';
 import { personalityClasses } from '../../data/personality-classes';
 import { isAuthenticated, logoutAdmin, getAdminSession, AdminUser } from '../../lib/auth';
 import {
@@ -74,7 +71,6 @@ import {
   getPersonalityClassGroupByTestScores,
   getPersonalityClassGroupByType
 } from '../../lib/personality-test';
-import { decryptData } from '../../lib/encryption';
 import {
   getAllTestResultsFromFirebase,
   subscribeToTestResults,
@@ -88,7 +84,6 @@ import {
   saveOTPToken,
   getAllOTPTokens,
   deleteOTPToken,
-  getOTPStatistics,
   generateShareableOTPUrl,
   OTPToken
 } from '../../lib/otp';
@@ -209,7 +204,7 @@ export default function AdminDashboard() {
       console.log('儀表板資料載入完成');
     } catch (error) {
       console.error('載入儀表板資料失敗:', error);
-      setError(`載入資料時發生錯誤: ${error.message || error}`);
+      setError(`載入資料時發生錯誤: ${error instanceof Error ? error.message : String(error)}`);
 
       // 即使出錯也要設定一個空的 stats 讓 UI 能顯示
       setStats({
