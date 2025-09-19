@@ -113,11 +113,11 @@ export default function HomePage() {
             <Box
               w="full"
               p={8}
-              bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+              bg="linear-gradient(135deg, #2563eb 0%, #1e40af 100%)"
               borderRadius="2xl"
               shadow="2xl"
               border="1px solid"
-              borderColor="purple.200"
+              borderColor="primary.300"
               position="relative"
               overflow="hidden"
               className="animate-bounce-in animate-pulse-glow"
@@ -146,13 +146,13 @@ export default function HomePage() {
               <VStack spacing={6}>
                 <Box textAlign="center">
                   <Text
-                    fontSize="4xl"
+                    fontSize="3xl"
                     mb={2}
                     role="img"
-                    aria-label="key"
+                    aria-label="psychology"
                     className="animate-float"
                   >
-                    🔐
+                    🧠
                   </Text>
                   <FormControl>
                     <FormLabel
@@ -163,36 +163,37 @@ export default function HomePage() {
                       color="white"
                       textShadow="0 2px 4px rgba(0,0,0,0.3)"
                     >
-                      {isOtpFromUrl ? '✨ 已獲取測試授權碼' : '🎯 請輸入測試授權碼'}
+                      {isOtpFromUrl ? '授權碼已確認' : '請輸入測試授權碼'}
                     </FormLabel>
                     <Box position="relative">
                       <Input
                         value={otpToken}
                         onChange={(e) => setOtpToken(e.target.value)}
-                        placeholder={isOtpFromUrl ? "🎉 授權碼已自動填入" : "🔑 請輸入您的測試授權碼"}
+                        placeholder={isOtpFromUrl ? "授權碼已自動填入" : "請輸入您的測試授權碼"}
                         textAlign="center"
                         size="lg"
-                        bg={isOtpFromUrl ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.95)"}
-                        border="3px solid"
-                        borderColor={isOtpFromUrl ? "green.400" : "rgba(255,255,255,0.7)"}
+                        bg={isOtpFromUrl ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.95)"}
+                        border="2px solid"
+                        borderColor={isOtpFromUrl ? "psychology.400" : "primary.200"}
                         isReadOnly={isOtpFromUrl}
                         fontSize="lg"
                         fontWeight="medium"
-                        color={isOtpFromUrl ? "green.700" : "gray.700"}
+                        color={isOtpFromUrl ? "psychology.700" : "neutral.700"}
                         _placeholder={{
-                          color: "gray.500"
+                          color: "neutral.500"
                         }}
                         _focus={{
-                          borderColor: "yellow.400",
-                          boxShadow: "0 0 0 3px rgba(255, 255, 0, 0.3), 0 0 20px rgba(255, 255, 0, 0.2)",
+                          borderColor: "accent.400",
+                          boxShadow: "0 0 0 3px rgba(251, 146, 60, 0.2)",
                           bg: "white",
                           transform: "scale(1.02)"
                         }}
                         _readOnly={{
-                          bg: "rgba(255,255,255,0.9)",
-                          color: "green.700",
+                          bg: "rgba(255,255,255,0.95)",
+                          color: "psychology.700",
                           cursor: "not-allowed",
-                          fontWeight: "bold"
+                          fontWeight: "bold",
+                          borderColor: "psychology.400"
                         }}
                         transition="all 0.3s ease"
                       />
@@ -202,7 +203,7 @@ export default function HomePage() {
                           right="3"
                           top="50%"
                           transform="translateY(-50%)"
-                          color="green.500"
+                          color="psychology.500"
                           fontSize="xl"
                         >
                           ✓
@@ -211,8 +212,8 @@ export default function HomePage() {
                     </Box>
                     {isOtpFromUrl && (
                       <HStack justifyContent="center" mt={4}>
-                        <Text fontSize="sm" color="green.100" fontWeight="medium">
-                          🎊 授權碼已驗證
+                        <Text fontSize="sm" color="psychology.100" fontWeight="medium">
+                          授權碼已驗證
                         </Text>
                         <Button
                           size="sm"
@@ -225,7 +226,7 @@ export default function HomePage() {
                             bg: "rgba(255,255,255,0.2)"
                           }}
                         >
-                          🔄 重新輸入
+                          重新輸入
                         </Button>
                       </HStack>
                     )}
@@ -236,7 +237,7 @@ export default function HomePage() {
 
             <Button
               w="full"
-              bg="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+              bg="linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)"
               color="white"
               variant="solid"
               rightIcon={<FiArrowRight size={24} />}
@@ -249,27 +250,27 @@ export default function HomePage() {
               borderRadius="xl"
               shadow="lg"
               border="2px solid"
-              borderColor="blue.300"
+              borderColor="psychology.400"
               _hover={{
                 transform: "translateY(-3px)",
                 shadow: "2xl",
-                bg: "linear-gradient(135deg, #43a5f5 0%, #0288d1 100%)",
-                borderColor: "blue.400"
+                bg: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
+                borderColor: "psychology.500"
               }}
               _active={{
                 transform: "translateY(-1px)",
                 shadow: "lg"
               }}
               _disabled={{
-                opacity: 0.5,
+                opacity: 0.6,
                 cursor: "not-allowed",
                 transform: "none",
-                bg: "gray.400",
-                borderColor: "gray.300"
+                bg: "neutral.400",
+                borderColor: "neutral.300"
               }}
               transition="all 0.3s ease"
             >
-              {otpToken.trim() ? '🚀 開始測試' : '🔐 請先輸入授權碼'}
+              {otpToken.trim() ? '開始測試' : '請先輸入授權碼'}
             </Button>
           </VStack>
         </Flex>
