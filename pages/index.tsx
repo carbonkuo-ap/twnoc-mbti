@@ -21,24 +21,43 @@ import MainLayout from "../components/layouts/main-layout";
 
 export default function HomePage() {
   const [otpToken, setOtpToken] = useState('');
+  const [isOtpFromUrl, setIsOtpFromUrl] = useState(false);
   const router = useRouter();
 
-  // 自動從 URL 填入 OTP
+  // 自動從 URL 或 localStorage 填入 OTP
   useEffect(() => {
     if (router.isReady) {
       const urlOtp = router.query.otp as string;
       if (urlOtp && urlOtp.trim() !== '') {
         setOtpToken(urlOtp.trim());
+        setIsOtpFromUrl(true);
+        // 保存到 localStorage
+        localStorage.setItem('mbti_otp_token', urlOtp.trim());
+      } else {
+        // 嘗試從 localStorage 獲取
+        const savedOtp = localStorage.getItem('mbti_otp_token');
+        if (savedOtp && savedOtp.trim() !== '') {
+          setOtpToken(savedOtp.trim());
+          setIsOtpFromUrl(true);
+        }
       }
     }
   }, [router.isReady, router.query.otp]);
 
   const handleStartTestWithOTP = () => {
     if (otpToken.trim()) {
+      // 保存到 localStorage
+      localStorage.setItem('mbti_otp_token', otpToken.trim());
       router.push(`/test?otp=${encodeURIComponent(otpToken.trim())}`);
     } else {
       router.push('/test');
     }
+  };
+
+  const handleClearOtp = () => {
+    setOtpToken('');
+    setIsOtpFromUrl(false);
+    localStorage.removeItem('mbti_otp_token');
   };
 
   return (
@@ -64,54 +83,83 @@ export default function HomePage() {
             as="h1"
             lineHeight="tall"
             textAlign="center"
+            fontSize={{ base: "2xl", md: "3xl" }}
           >
             <Highlight
               query="MBTI"
               styles={{
-                py: 1,
-                px: 4,
+                py: 2,
+                px: 6,
                 rounded: "full",
                 bg: "primary.500",
                 color: "white",
+                fontWeight: "bold",
               }}
             >
-              參加 MBTI 性格測試
+              MBTI 性格測試
             </Highlight>
           </Heading>
           <Text
-            fontSize="xl"
+            fontSize={{ base: "lg", md: "xl" }}
             align="center"
+            color="gray.600"
+            fontWeight="medium"
+            lineHeight="relaxed"
           >
-            通過這個性格測試更好地瞭解自己
+            探索你的個性類型，更深入地認識自己
           </Text>
 
-          <VStack spacing={6} w="full" maxW="400px">
-            <Box w="full">
-              <FormControl>
-                <FormLabel
-                  textAlign="center"
-                  mb={3}
-                  fontSize="md"
-                  fontWeight="bold"
-                  color="gray.700"
-                >
-                  輸入 OTP Token (必填)
-                </FormLabel>
-                <Input
-                  value={otpToken}
-                  onChange={(e) => setOtpToken(e.target.value)}
-                  placeholder="請輸入您的 OTP Token"
-                  textAlign="center"
-                  size="lg"
-                  bg="white"
-                  border="2px solid"
-                  borderColor="gray.300"
-                  _focus={{
-                    borderColor: "primary.500",
-                    boxShadow: "0 0 0 1px var(--chakra-colors-primary-500)"
-                  }}
-                />
-              </FormControl>
+          <VStack spacing={8} w="full" maxW="450px">
+            <Box w="full" p={6} bg="white" borderRadius="xl" shadow="lg" border="1px solid" borderColor="gray.200">
+              <VStack spacing={4}>
+                <FormControl>
+                  <FormLabel
+                    textAlign="center"
+                    mb={4}
+                    fontSize={{ base: "lg", md: "xl" }}
+                    fontWeight="bold"
+                    color="gray.800"
+                  >
+                    {isOtpFromUrl ? '已獲取測試授權碼' : '請輸入測試授權碼'}
+                  </FormLabel>
+                  <Input
+                    value={otpToken}
+                    onChange={(e) => setOtpToken(e.target.value)}
+                    placeholder={isOtpFromUrl ? "授權碼已自動填入" : "請輸入您的測試授權碼"}
+                    textAlign="center"
+                    size="lg"
+                    bg={isOtpFromUrl ? "gray.50" : "white"}
+                    border="2px solid"
+                    borderColor={isOtpFromUrl ? "green.300" : "gray.300"}
+                    isReadOnly={isOtpFromUrl}
+                    _focus={{
+                      borderColor: "primary.500",
+                      boxShadow: "0 0 0 1px var(--chakra-colors-primary-500)"
+                    }}
+                    _readOnly={{
+                      bg: "gray.50",
+                      color: "gray.700",
+                      cursor: "not-allowed"
+                    }}
+                  />
+                  {isOtpFromUrl && (
+                    <HStack justifyContent="center" mt={3}>
+                      <Text fontSize="sm" color="green.600" fontWeight="medium">
+                        ✓ 授權碼已驗證
+                      </Text>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="gray"
+                        onClick={handleClearOtp}
+                        fontSize="sm"
+                      >
+                        重新輸入
+                      </Button>
+                    </HStack>
+                  )}
+                </FormControl>
+              </VStack>
             </Box>
 
             <Button
@@ -121,8 +169,16 @@ export default function HomePage() {
               rightIcon={<FiArrowRight size={20} />}
               onClick={handleStartTestWithOTP}
               size="lg"
+              py={6}
+              fontSize="lg"
+              fontWeight="bold"
+              isDisabled={!otpToken.trim()}
+              _disabled={{
+                opacity: 0.6,
+                cursor: "not-allowed"
+              }}
             >
-              開始測試
+              {otpToken.trim() ? '開始測試' : '請先輸入授權碼'}
             </Button>
           </VStack>
         </Flex>

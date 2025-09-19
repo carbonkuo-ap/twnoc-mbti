@@ -40,9 +40,18 @@ export default function OTPVerification({ isOpen, onClose, onVerified }: OTPVeri
       const urlOtpToken = extractOTPFromUrl();
       if (urlOtpToken && urlOtpToken.trim() !== '') {
         setOtpToken(urlOtpToken);
+        // 保存到 localStorage
+        localStorage.setItem('mbti_otp_token', urlOtpToken.trim());
         handleVerify(urlOtpToken);
       } else {
-        setIsAutoChecking(false);
+        // 嘗試從 localStorage 獲取
+        const savedOtp = localStorage.getItem('mbti_otp_token');
+        if (savedOtp && savedOtp.trim() !== '') {
+          setOtpToken(savedOtp);
+          handleVerify(savedOtp);
+        } else {
+          setIsAutoChecking(false);
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -63,6 +72,9 @@ export default function OTPVerification({ isOpen, onClose, onVerified }: OTPVeri
       const validation = await validateOTPTokenAsync(token.trim());
 
       if (validation.valid) {
+        // 保存有效的 OTP 到 localStorage
+        localStorage.setItem('mbti_otp_token', token.trim());
+
         // 如果是自動驗證，顯示成功訊息一秒後再關閉
         if (tokenToVerify) {
           setAutoVerifySuccess(true);

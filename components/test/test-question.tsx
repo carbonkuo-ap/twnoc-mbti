@@ -14,11 +14,13 @@ import {
 import { saveTestResultToFirebase } from "../../lib/firebase";
 import { extractOTPFromUrl } from "../../lib/otp";
 import useUserTestAnswersStore from "../../store/use-user-test-answers";
+import useTestTimerStore from "../../store/use-test-timer";
 
 export default function TestQuestion() {
   const router = useRouter();
 
   const { userTestAnswers, setUserTestAnswers } = useUserTestAnswersStore();
+  const { testStartTime, resetTestTimer } = useTestTimerStore();
 
   const [currentPersonalityTestIndex, setCurrentPersonalityTestIndex] =
     useState(0);
@@ -79,13 +81,19 @@ export default function TestQuestion() {
     );
 
     // 獲取 OTP Token（如果有的話）
-    const otpToken = extractOTPFromUrl();
+    const otpToken = extractOTPFromUrl() || localStorage.getItem('mbti_otp_token');
 
     const testResult: any = {
       testAnswers: userTestAnswers,
       testScores,
       timestamp,
     };
+
+    // 添加計時資訊
+    if (testStartTime) {
+      testResult.testStartTime = testStartTime;
+      testResult.testDuration = timestamp - testStartTime; // 測試持續時間（毫秒）
+    }
 
     // 只有當 OTP Token 存在且非空時才添加該欄位
     if (otpToken && otpToken.trim() !== '') {
@@ -108,8 +116,14 @@ export default function TestQuestion() {
           }
         }
 
-        // 清空答案
+        console.log('測試結果已保存，計時資訊:', {
+          startTime: testStartTime ? new Date(testStartTime).toISOString() : 'N/A',
+          duration: testResult.testDuration ? `${Math.round(testResult.testDuration / 1000)} 秒` : 'N/A'
+        });
+
+        // 清空答案和計時器
         setUserTestAnswers([]);
+        resetTestTimer();
 
         // 確保導航成功，包含錯誤處理
         try {

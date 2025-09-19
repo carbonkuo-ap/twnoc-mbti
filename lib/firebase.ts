@@ -37,6 +37,8 @@ export interface FirebaseTestResult extends TestResult {
   };
   ipHash?: string;
   completedAt: number;
+  testStartTime?: number;  // 測試開始時間
+  testDuration?: number;   // 測試持續時間（毫秒）
 }
 
 // 儲存測試結果到 Firebase
@@ -83,7 +85,7 @@ export async function saveTestResultToFirebase(testResult: TestResult): Promise<
 }
 
 // 從 Firebase 獲取所有測試結果
-export async function getAllTestResultsFromFirebase(): Promise<FirebaseTestResult[]> {
+export async function getAllTestResultsFromFirebase(otpToken?: string): Promise<FirebaseTestResult[]> {
   try {
     if (!database) {
       console.error('Firebase 未初始化');
@@ -105,6 +107,12 @@ export async function getAllTestResultsFromFirebase(): Promise<FirebaseTestResul
 
       // 按時間排序（最新的在前）
       results.sort((a, b) => (b.completedAt || b.timestamp) - (a.completedAt || a.timestamp));
+
+      // 如果指定了 OTP Token，則過濾結果
+      if (otpToken && otpToken.trim() !== '') {
+        return results.filter(result => result.otpToken === otpToken.trim());
+      }
+
       return results;
     }
 

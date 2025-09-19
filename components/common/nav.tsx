@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Flex, Button } from "@chakra-ui/react";
-import { BiHistory } from "react-icons/bi";
 
 export default function Nav() {
   return (
@@ -31,14 +30,6 @@ export default function Nav() {
           </Button>
         </Link>
       </Flex>
-      <Link href="/test/result/history">
-        <Button
-          variant="solid"
-          leftIcon={<BiHistory size={24} />}
-        >
-          測試歷史
-        </Button>
-      </Link>
     </Flex>
   );
 }

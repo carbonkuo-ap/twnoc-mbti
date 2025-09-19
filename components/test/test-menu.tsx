@@ -1,13 +1,8 @@
-import { Flex, Button } from "@chakra-ui/react";
-import { RiInformationLine } from "react-icons/ri";
+import { Flex } from "@chakra-ui/react";
 
 import TestTimer from "./test-timer";
 
-interface TestMenuProps {
-  onShowInstructionsButtonClick: () => void;
-}
-
-export default function TestMenu(props: TestMenuProps) {
+export default function TestMenu() {
   return (
     <Flex
       width="full"
@@ -20,14 +15,6 @@ export default function TestMenu(props: TestMenuProps) {
     >
       <Flex>
         <TestTimer />
-        <Button
-          aria-label="instructions"
-          variant="solid"
-          leftIcon={<RiInformationLine size={24} />}
-          onClick={props.onShowInstructionsButtonClick}
-        >
-          說明
-        </Button>
       </Flex>
     </Flex>
   );

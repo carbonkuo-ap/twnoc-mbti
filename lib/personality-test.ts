@@ -61,6 +61,8 @@ export interface TestResult {
   testAnswers: TestAnswerOption["type"][];
   testScores: PersonalityClass["type"][];
   otpToken?: string;
+  testStartTime?: number;  // 測試開始時間
+  testDuration?: number;   // 測試持續時間（毫秒）
 }
 
 type Extroverted = "E";
@@ -147,15 +149,17 @@ export function getSavedTestResult(id: string) {
   });
 }
 
-export function getAllSavedTestResult() {
+export function getAllSavedTestResult(otpToken?: string) {
   return Future.make<Result<Option<TestResult[]>, Error>>((resolve) => {
-    getAllTestResultsFromFirebase()
+    getAllTestResultsFromFirebase(otpToken)
       .then((results) => {
         const testResults = results.map(result => ({
           timestamp: result.timestamp,
           testAnswers: result.testAnswers,
           testScores: result.testScores,
-          otpToken: result.otpToken
+          otpToken: result.otpToken,
+          testStartTime: result.testStartTime,
+          testDuration: result.testDuration
         }));
         resolve(Result.Ok(Option.Some(testResults)));
       })
