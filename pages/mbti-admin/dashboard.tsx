@@ -87,6 +87,8 @@ import {
   generateShareableOTPUrl,
   OTPToken
 } from '../../lib/otp';
+import TestResultsGrid from '../../components/admin/TestResultsGrid';
+import OTPTokensGrid from '../../components/admin/OTPTokensGrid';
 
 interface TestStats {
   totalTests: number;
@@ -529,21 +531,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const CopyUrlButton = ({ token }: { token: string }) => {
-    const url = generateShareableOTPUrl(token);
-    const { onCopy, hasCopied } = useClipboard(url);
-
-    return (
-      <IconButton
-        icon={<Icon as={FiCopy} />}
-        aria-label="複製分享連結"
-        size="sm"
-        onClick={onCopy}
-        colorScheme={hasCopied ? 'green' : 'blue'}
-        variant="outline"
-      />
-    );
-  };
 
   const processTestResults = (firebaseResults: FirebaseTestResult[]): TestStats => {
     // Firebase-only 架構，只處理 Firebase 資料
@@ -796,84 +783,12 @@ export default function AdminDashboard() {
                     </CardHeader>
                     <CardBody>
                       {stats.recentTests.length > 0 ? (
-                        <Table variant="simple">
-                          <Thead>
-                            <Tr>
-                              <Th>測試時間</Th>
-                              <Th>性格類型</Th>
-                              <Th>來源</Th>
-                              <Th>OTP Token</Th>
-                              <Th>操作</Th>
-                            </Tr>
-                          </Thead>
-                          <Tbody>
-                            {stats.recentTests.map((test, index) => {
-                              const personalityClassGroup = getPersonalityClassGroupByTestScores(test.testScores);
-                              // Firebase-only 架構，所有測試都來自 Firebase
-                              const firebaseTest = test as FirebaseTestResult;
-                              const testOtpToken = firebaseTest?.otpToken;
-
-                              return (
-                                <Tr key={index}>
-                                  <Td>{formatDate(test.timestamp.toString())}</Td>
-                                  <Td>
-                                    <Badge
-                                      colorScheme={getTypeColor(personalityClassGroup.type)}
-                                      cursor="pointer"
-                                      onClick={() => handlePersonalityTypeClick(personalityClassGroup.type, test.testScores)}
-                                      _hover={{ transform: 'scale(1.05)' }}
-                                    >
-                                      {personalityClassGroup.type}
-                                    </Badge>
-                                  </Td>
-                                  <Td>
-                                    <Badge
-                                      colorScheme="green"
-                                      size="sm"
-                                    >
-                                      Firebase
-                                    </Badge>
-                                  </Td>
-                                  <Td>
-                                    {testOtpToken && testOtpToken.trim() !== '' ? (
-                                      <VStack align="start" spacing={1}>
-                                        <Text fontSize="xs" fontFamily="mono">
-                                          {testOtpToken.substring(0, 8)}...
-                                        </Text>
-                                        <Badge size="xs" colorScheme="orange">
-                                          使用 {otpUsageStats[testOtpToken] || 1} 次
-                                        </Badge>
-                                      </VStack>
-                                    ) : (
-                                      <Text fontSize="xs" color="gray.500">
-                                        無授權
-                                      </Text>
-                                    )}
-                                  </Td>
-                                  <Td>
-                                    <HStack spacing={2}>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => handlePersonalityTypeClick(personalityClassGroup.type, test.testScores)}
-                                      >
-                                        查看報告
-                                      </Button>
-                                      <IconButton
-                                        icon={<Icon as={FiTrash2} />}
-                                        aria-label="刪除記錄"
-                                        size="sm"
-                                        colorScheme="red"
-                                        variant="outline"
-                                        onClick={() => handleDeleteTestResult(firebaseTest.id || '')}
-                                      />
-                                    </HStack>
-                                  </Td>
-                                </Tr>
-                              );
-                            })}
-                          </Tbody>
-                        </Table>
+                        <TestResultsGrid
+                          testResults={stats.recentTests as FirebaseTestResult[]}
+                          otpUsageStats={otpUsageStats}
+                          onDeleteTest={handleDeleteTestResult}
+                          onViewReport={handlePersonalityTypeClick}
+                        />
                       ) : (
                         <Text color="gray.500" textAlign="center" py={8}>
                           暫無測試記錄
@@ -947,66 +862,10 @@ export default function AdminDashboard() {
                       </CardHeader>
                       <CardBody>
                         {otpTokens.length > 0 ? (
-                          <Table variant="simple">
-                            <Thead>
-                              <Tr>
-                                <Th>Token</Th>
-                                <Th>受試者</Th>
-                                <Th>建立時間</Th>
-                                <Th>過期時間</Th>
-                                <Th>狀態</Th>
-                                <Th>操作</Th>
-                              </Tr>
-                            </Thead>
-                            <Tbody>
-                              {otpTokens.map((token, index) => (
-                                <Tr key={index}>
-                                  <Td>
-                                    <Text fontFamily="mono" fontSize="sm">
-                                      {token.token.substring(0, 8)}...
-                                    </Text>
-                                  </Td>
-                                  <Td>
-                                    <Text fontSize="sm">
-                                      {token.metadata?.subjectName || '-'}
-                                    </Text>
-                                  </Td>
-                                  <Td>{formatDate(token.createdAt)}</Td>
-                                  <Td>{formatDate(token.expiresAt)}</Td>
-                                  <Td>
-                                    <Badge
-                                      colorScheme={
-                                        token.usedAt
-                                          ? 'blue'
-                                          : token.expiresAt > Date.now()
-                                          ? 'green'
-                                          : 'red'
-                                      }
-                                    >
-                                      {token.usedAt
-                                        ? '已使用'
-                                        : token.expiresAt > Date.now()
-                                        ? '活躍'
-                                        : '已過期'}
-                                    </Badge>
-                                  </Td>
-                                  <Td>
-                                    <HStack spacing={2}>
-                                      <CopyUrlButton token={token.token} />
-                                      <IconButton
-                                        icon={<Icon as={FiTrash2} />}
-                                        aria-label="刪除"
-                                        size="sm"
-                                        colorScheme="red"
-                                        variant="outline"
-                                        onClick={() => handleDeleteOTP(token.token)}
-                                      />
-                                    </HStack>
-                                  </Td>
-                                </Tr>
-                              ))}
-                            </Tbody>
-                          </Table>
+                          <OTPTokensGrid
+                            tokens={otpTokens}
+                            onDeleteToken={handleDeleteOTP}
+                          />
                         ) : (
                           <Text color="gray.500" textAlign="center" py={8}>
                             暫無 OTP Token

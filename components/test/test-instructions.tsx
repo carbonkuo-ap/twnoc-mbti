@@ -5,7 +5,10 @@ import {
   UnorderedList,
   ListItem,
   Button,
+  HStack,
 } from "@chakra-ui/react";
+import Link from "next/link";
+import { BiHistory } from "react-icons/bi";
 
 interface TestInstructionsProps {
   onCloseTestInstructions: () => void;
@@ -39,14 +42,23 @@ export default function TestInstructions(props: TestInstructionsProps) {
           </ListItem>
         </UnorderedList>
       </Flex>
-      <Button
-        w="min-content"
-        colorScheme="primary"
-        alignSelf="flex-end"
-        onClick={props.onCloseTestInstructions}
-      >
-        好的，我明白了！
-      </Button>
+      <HStack justifyContent="space-between" w="full">
+        <Link href="/test/result/history">
+          <Button
+            variant="outline"
+            leftIcon={<BiHistory size={20} />}
+            colorScheme="gray"
+          >
+            查看歷史紀錄
+          </Button>
+        </Link>
+        <Button
+          colorScheme="primary"
+          onClick={props.onCloseTestInstructions}
+        >
+          好的，我明白了！
+        </Button>
+      </HStack>
     </Flex>
   );
 }

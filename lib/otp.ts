@@ -290,3 +290,16 @@ export async function generateBatchOTPTokens(count: number, config?: Partial<OTP
 
   return tokens;
 }
+
+/**
+ * 根據 OTP Token 字符串獲取 OTP 資訊
+ */
+export async function getOTPTokenInfo(tokenString: string): Promise<OTPToken | null> {
+  try {
+    const tokens = await getAllOTPTokens(true); // 包含已過期的
+    return tokens.find(t => t.token === tokenString) || null;
+  } catch (error) {
+    console.error('獲取 OTP Token 資訊失敗:', error);
+    return null;
+  }
+}

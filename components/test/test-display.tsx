@@ -44,6 +44,7 @@ export default function TestDisplay() {
     // 設定計時器開始時間
     const startTime = Date.now();
     setTestStartTime(startTime);
+    console.log('計時器已啟動（關閉說明）:', new Date(startTime).toISOString());
   }
 
   function handleOTPVerified(otpToken: string) {
@@ -52,6 +53,14 @@ export default function TestDisplay() {
     setShowOTPModal(false);
     // 重設計時器
     resetTestTimer();
+
+    // 如果已經看過說明，立即開始計時
+    const hasSeenInstructions = localStorage.getItem('mbti_has_seen_instructions') === 'true';
+    if (hasSeenInstructions) {
+      const startTime = Date.now();
+      setTestStartTime(startTime);
+      console.log('計時器已啟動（跳過說明）:', new Date(startTime).toISOString());
+    }
   }
 
   function handleOTPModalClose() {

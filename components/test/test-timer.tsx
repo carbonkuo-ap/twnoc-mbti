@@ -1,38 +1,36 @@
 import { useState, useEffect } from "react";
 import { Flex, Text } from "@chakra-ui/react";
 import { FiClock } from "react-icons/fi";
-import { Option } from "@swan-io/boxed";
-import dayjs from "dayjs";
 import useTestTimerStore from "../../store/use-test-timer";
 
 const SECOND_IN_MILISECONDS = 1000;
 
 export default function TestTimer() {
-  const [elapsedTime, setElapsedTime] = useState<Option<dayjs.Dayjs>>(
-    Option.None()
-  );
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
   const { testStartTime } = useTestTimerStore();
 
   useEffect(() => {
     // 只有當測試開始時間存在時才開始計時
     if (!testStartTime) {
-      setElapsedTime(Option.None());
+      setElapsedSeconds(0);
       return;
     }
 
-    if (elapsedTime.isNone()) {
-      setElapsedTime(Option.Some(dayjs().minute(0).second(0).millisecond(0)));
-      return;
-    }
+    // 立即計算一次經過的時間
+    const updateElapsedTime = () => {
+      const now = Date.now();
+      const elapsed = Math.floor((now - testStartTime) / 1000);
+      setElapsedSeconds(elapsed);
+    };
 
-    const intervalId = setTimeout(() => {
-      setElapsedTime((elapsedTime) =>
-        elapsedTime.map((elapsedTime) => elapsedTime.add(1000, "ms"))
-      );
-    }, SECOND_IN_MILISECONDS);
+    // 立即更新一次
+    updateElapsedTime();
 
-    return () => clearTimeout(intervalId);
-  }, [elapsedTime, testStartTime]);
+    // 設置定時器每秒更新
+    const intervalId = setInterval(updateElapsedTime, SECOND_IN_MILISECONDS);
+
+    return () => clearInterval(intervalId);
+  }, [testStartTime]);
 
   return (
     <Flex
@@ -46,15 +44,11 @@ export default function TestTimer() {
     >
       <FiClock size={20} />
       <Text fontWeight="bold">
-        {testStartTime ? elapsedTime.match({
-          Some: (elapsedTime) => {
-            const minute = elapsedTime.minute().toString().padStart(2, "0");
-            const second = elapsedTime.second().toString().padStart(2, "0");
-
-            return `${minute} : ${second}`;
-          },
-          None: () => "00 : 00",
-        }) : "-- : --"}
+        {testStartTime ? (() => {
+          const minutes = Math.floor(elapsedSeconds / 60);
+          const seconds = elapsedSeconds % 60;
+          return `${minutes.toString().padStart(2, "0")} : ${seconds.toString().padStart(2, "0")}`;
+        })() : "-- : --"}
       </Text>
     </Flex>
   );

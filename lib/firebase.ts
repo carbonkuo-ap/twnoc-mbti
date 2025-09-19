@@ -77,6 +77,14 @@ export async function saveTestResultToFirebase(testResult: TestResult): Promise<
     }
 
     console.log('測試結果已儲存到 Firebase:', newResultRef.key);
+    console.log('儲存的測試數據包含:', {
+      hasOtpToken: !!firebaseResult.otpToken,
+      hasTestStartTime: !!firebaseResult.testStartTime,
+      hasTestDuration: !!firebaseResult.testDuration,
+      testStartTime: firebaseResult.testStartTime ? new Date(firebaseResult.testStartTime).toISOString() : 'N/A',
+      testDuration: firebaseResult.testDuration ? `${Math.round(firebaseResult.testDuration / 1000)} 秒` : 'N/A',
+      completedAt: new Date(firebaseResult.completedAt).toISOString()
+    });
     return true;
   } catch (error) {
     console.error('儲存測試結果到 Firebase 失敗:', error);

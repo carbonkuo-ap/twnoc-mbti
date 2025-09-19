@@ -1,6 +1,7 @@
 import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
 import "@fontsource/poppins/400.css";
+import "../styles/animations.css";
 import { useEffect } from "react";
 
 import theme from "../theme";

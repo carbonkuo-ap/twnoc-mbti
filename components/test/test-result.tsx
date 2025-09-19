@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import {
   Flex,
   Heading,
@@ -11,12 +12,14 @@ import {
   Td,
   UnorderedList,
   ListItem,
+  Badge,
 } from "@chakra-ui/react";
 
 import {
   TestResult as ITestResult,
   getPersonalityClassGroupByTestScores,
 } from "../../lib/personality-test";
+import { getOTPTokenInfo, OTPToken } from "../../lib/otp";
 
 interface TestResultProps {
   testResult: ITestResult;
@@ -26,6 +29,17 @@ export default function TestResult(props: TestResultProps) {
   const personalityClassGroup = getPersonalityClassGroupByTestScores(
     props.testResult.testScores
   );
+  const [otpInfo, setOtpInfo] = useState<OTPToken | null>(null);
+
+  useEffect(() => {
+    const loadOTPInfo = async () => {
+      if (props.testResult.otpToken) {
+        const info = await getOTPTokenInfo(props.testResult.otpToken);
+        setOtpInfo(info);
+      }
+    };
+    loadOTPInfo();
+  }, [props.testResult.otpToken]);
 
   return (
     <Flex
@@ -125,6 +139,30 @@ export default function TestResult(props: TestResultProps) {
               {personalityClassGroup.jungianFunctionalPreference.inferior}
             </Td>
           </Tr>
+          {props.testResult.otpToken && (
+            <Tr>
+              <Th>測試授權</Th>
+              <Td>
+                <Flex direction="column" gap={1}>
+                  <Badge
+                    colorScheme="blue"
+                    variant="subtle"
+                    fontSize="sm"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                  >
+                    {otpInfo?.metadata?.subjectName || `授權碼: ${props.testResult.otpToken.substring(0, 8)}...`}
+                  </Badge>
+                  {otpInfo?.metadata?.description && (
+                    <Text fontSize="xs" color="gray.600">
+                      {otpInfo.metadata.description}
+                    </Text>
+                  )}
+                </Flex>
+              </Td>
+            </Tr>
+          )}
         </Tbody>
       </Table>
       <Heading

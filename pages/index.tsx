@@ -109,76 +109,167 @@ export default function HomePage() {
             探索你的個性類型，更深入地認識自己
           </Text>
 
-          <VStack spacing={8} w="full" maxW="450px">
-            <Box w="full" p={6} bg="white" borderRadius="xl" shadow="lg" border="1px solid" borderColor="gray.200">
-              <VStack spacing={4}>
-                <FormControl>
-                  <FormLabel
-                    textAlign="center"
-                    mb={4}
-                    fontSize={{ base: "lg", md: "xl" }}
-                    fontWeight="bold"
-                    color="gray.800"
+          <VStack spacing={8} w="full" maxW="480px">
+            <Box
+              w="full"
+              p={8}
+              bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+              borderRadius="2xl"
+              shadow="2xl"
+              border="1px solid"
+              borderColor="purple.200"
+              position="relative"
+              overflow="hidden"
+              className="animate-bounce-in animate-pulse-glow"
+              _before={{
+                content: '""',
+                position: "absolute",
+                top: "-50%",
+                left: "-50%",
+                width: "200%",
+                height: "200%",
+                background: "linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent)",
+                transform: "rotate(45deg)",
+                transition: "all 0.6s",
+                opacity: 0
+              }}
+              _hover={{
+                transform: "translateY(-2px)",
+                shadow: "3xl",
+                _before: {
+                  opacity: 1,
+                  animation: "shimmer 1.5s ease-in-out infinite"
+                }
+              }}
+              transition="all 0.3s ease"
+            >
+              <VStack spacing={6}>
+                <Box textAlign="center">
+                  <Text
+                    fontSize="4xl"
+                    mb={2}
+                    role="img"
+                    aria-label="key"
+                    className="animate-float"
                   >
-                    {isOtpFromUrl ? '已獲取測試授權碼' : '請輸入測試授權碼'}
-                  </FormLabel>
-                  <Input
-                    value={otpToken}
-                    onChange={(e) => setOtpToken(e.target.value)}
-                    placeholder={isOtpFromUrl ? "授權碼已自動填入" : "請輸入您的測試授權碼"}
-                    textAlign="center"
-                    size="lg"
-                    bg={isOtpFromUrl ? "gray.50" : "white"}
-                    border="2px solid"
-                    borderColor={isOtpFromUrl ? "green.300" : "gray.300"}
-                    isReadOnly={isOtpFromUrl}
-                    _focus={{
-                      borderColor: "primary.500",
-                      boxShadow: "0 0 0 1px var(--chakra-colors-primary-500)"
-                    }}
-                    _readOnly={{
-                      bg: "gray.50",
-                      color: "gray.700",
-                      cursor: "not-allowed"
-                    }}
-                  />
-                  {isOtpFromUrl && (
-                    <HStack justifyContent="center" mt={3}>
-                      <Text fontSize="sm" color="green.600" fontWeight="medium">
-                        ✓ 授權碼已驗證
-                      </Text>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        colorScheme="gray"
-                        onClick={handleClearOtp}
-                        fontSize="sm"
-                      >
-                        重新輸入
-                      </Button>
-                    </HStack>
-                  )}
-                </FormControl>
+                    🔐
+                  </Text>
+                  <FormControl>
+                    <FormLabel
+                      textAlign="center"
+                      mb={4}
+                      fontSize={{ base: "lg", md: "xl" }}
+                      fontWeight="bold"
+                      color="white"
+                      textShadow="0 2px 4px rgba(0,0,0,0.3)"
+                    >
+                      {isOtpFromUrl ? '✨ 已獲取測試授權碼' : '🎯 請輸入測試授權碼'}
+                    </FormLabel>
+                    <Box position="relative">
+                      <Input
+                        value={otpToken}
+                        onChange={(e) => setOtpToken(e.target.value)}
+                        placeholder={isOtpFromUrl ? "🎉 授權碼已自動填入" : "🔑 請輸入您的測試授權碼"}
+                        textAlign="center"
+                        size="lg"
+                        bg={isOtpFromUrl ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.95)"}
+                        border="3px solid"
+                        borderColor={isOtpFromUrl ? "green.400" : "rgba(255,255,255,0.7)"}
+                        isReadOnly={isOtpFromUrl}
+                        fontSize="lg"
+                        fontWeight="medium"
+                        color={isOtpFromUrl ? "green.700" : "gray.700"}
+                        _placeholder={{
+                          color: "gray.500"
+                        }}
+                        _focus={{
+                          borderColor: "yellow.400",
+                          boxShadow: "0 0 0 3px rgba(255, 255, 0, 0.3), 0 0 20px rgba(255, 255, 0, 0.2)",
+                          bg: "white",
+                          transform: "scale(1.02)"
+                        }}
+                        _readOnly={{
+                          bg: "rgba(255,255,255,0.9)",
+                          color: "green.700",
+                          cursor: "not-allowed",
+                          fontWeight: "bold"
+                        }}
+                        transition="all 0.3s ease"
+                      />
+                      {isOtpFromUrl && (
+                        <Box
+                          position="absolute"
+                          right="3"
+                          top="50%"
+                          transform="translateY(-50%)"
+                          color="green.500"
+                          fontSize="xl"
+                        >
+                          ✓
+                        </Box>
+                      )}
+                    </Box>
+                    {isOtpFromUrl && (
+                      <HStack justifyContent="center" mt={4}>
+                        <Text fontSize="sm" color="green.100" fontWeight="medium">
+                          🎊 授權碼已驗證
+                        </Text>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          colorScheme="whiteAlpha"
+                          onClick={handleClearOtp}
+                          fontSize="sm"
+                          color="white"
+                          _hover={{
+                            bg: "rgba(255,255,255,0.2)"
+                          }}
+                        >
+                          🔄 重新輸入
+                        </Button>
+                      </HStack>
+                    )}
+                  </FormControl>
+                </Box>
               </VStack>
             </Box>
 
             <Button
               w="full"
-              colorScheme="primary"
+              bg="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+              color="white"
               variant="solid"
-              rightIcon={<FiArrowRight size={20} />}
+              rightIcon={<FiArrowRight size={24} />}
               onClick={handleStartTestWithOTP}
               size="lg"
-              py={6}
-              fontSize="lg"
+              py={7}
+              fontSize="xl"
               fontWeight="bold"
               isDisabled={!otpToken.trim()}
-              _disabled={{
-                opacity: 0.6,
-                cursor: "not-allowed"
+              borderRadius="xl"
+              shadow="lg"
+              border="2px solid"
+              borderColor="blue.300"
+              _hover={{
+                transform: "translateY(-3px)",
+                shadow: "2xl",
+                bg: "linear-gradient(135deg, #43a5f5 0%, #0288d1 100%)",
+                borderColor: "blue.400"
               }}
+              _active={{
+                transform: "translateY(-1px)",
+                shadow: "lg"
+              }}
+              _disabled={{
+                opacity: 0.5,
+                cursor: "not-allowed",
+                transform: "none",
+                bg: "gray.400",
+                borderColor: "gray.300"
+              }}
+              transition="all 0.3s ease"
             >
-              {otpToken.trim() ? '開始測試' : '請先輸入授權碼'}
+              {otpToken.trim() ? '🚀 開始測試' : '🔐 請先輸入授權碼'}
             </Button>
           </VStack>
         </Flex>
