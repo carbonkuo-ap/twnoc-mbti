@@ -239,11 +239,23 @@ const OTPTokensGrid: React.FC<OTPTokensGridProps> = ({
   const gridRef = React.useRef<AgGridReact>(null);
 
   const onGridReady = (params: GridReadyEvent) => {
-    params.api.sizeColumnsToFit();
+    console.log('AG Grid ready with', tokens.length, 'tokens');
+    console.log('Grid API:', params.api);
+    console.log('Grid columns:', params.api.getColumnDefs());
+    console.log('Grid row data:', params.api.getModel().getRowCount());
+
+    // 測試 API 是否正常工作
+    setTimeout(() => {
+      console.log('Testing AG Grid API...');
+      params.api.refreshCells();
+      params.api.sizeColumnsToFit();
+    }, 1000);
   };
 
+  console.log('OTPTokensGrid rendering with tokens:', tokens);
+
   return (
-    <div className="ag-theme-alpine" style={{ height: '500px', width: '100%' }}>
+    <div style={{ width: '100%' }}>
       <HStack mb={4} justify="space-between">
         <Text fontSize="lg" fontWeight="bold">
           OTP Token 列表 ({tokens.length} 筆記錄)
@@ -258,20 +270,30 @@ const OTPTokensGrid: React.FC<OTPTokensGridProps> = ({
         </Button>
       </HStack>
 
-      <AgGridReact
-        ref={gridRef}
-        rowData={tokens}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        onGridReady={onGridReady}
-        pagination={true}
-        paginationPageSize={15}
-        suppressCellFocus={true}
-        rowHeight={50}
-        animateRows={true}
-        enableRangeSelection={true}
-        suppressRowClickSelection={true}
-      />
+      <div
+        className="ag-theme-alpine"
+        style={{
+          height: '500px',
+          width: '100%',
+          border: '1px solid #ddd',
+          borderRadius: '8px'
+        }}
+      >
+        <AgGridReact
+          ref={gridRef}
+          rowData={tokens}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          onGridReady={onGridReady}
+          pagination={true}
+          paginationPageSize={15}
+          suppressCellFocus={true}
+          rowHeight={50}
+          animateRows={true}
+          enableRangeSelection={true}
+          suppressRowClickSelection={true}
+        />
+      </div>
     </div>
   );
 };

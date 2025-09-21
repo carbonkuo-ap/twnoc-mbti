@@ -209,8 +209,10 @@ const TestResultsGrid: React.FC<TestResultsGridProps> = ({
     params.api.sizeColumnsToFit();
   };
 
+  console.log('TestResultsGrid rendering with', testResults.length, 'results');
+
   return (
-    <div className="ag-theme-alpine" style={{ height: '600px', width: '100%' }}>
+    <div style={{ width: '100%' }}>
       <HStack mb={4} justify="space-between">
         <Text fontSize="lg" fontWeight="bold">
           測試結果 ({testResults.length} 筆記錄)
@@ -225,20 +227,30 @@ const TestResultsGrid: React.FC<TestResultsGridProps> = ({
         </Button>
       </HStack>
 
-      <AgGridReact
-        ref={gridRef}
-        rowData={testResults}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        onGridReady={onGridReady}
-        pagination={true}
-        paginationPageSize={20}
-        suppressCellFocus={true}
-        rowHeight={60}
-        animateRows={true}
-        enableRangeSelection={true}
-        suppressRowClickSelection={true}
-      />
+      <div
+        className="ag-theme-alpine"
+        style={{
+          height: '600px',
+          width: '100%',
+          border: '1px solid #ddd',
+          borderRadius: '8px'
+        }}
+      >
+        <AgGridReact
+          ref={gridRef}
+          rowData={testResults}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          onGridReady={onGridReady}
+          pagination={true}
+          paginationPageSize={20}
+          suppressCellFocus={true}
+          rowHeight={60}
+          animateRows={true}
+          enableRangeSelection={true}
+          suppressRowClickSelection={true}
+        />
+      </div>
     </div>
   );
 };
