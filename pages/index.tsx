@@ -67,12 +67,17 @@ export default function HomePage() {
         <link rel="icon" href={getFaviconPath()} />
       </Head>
 
-      <Flex h="100vh" w="100vw" overflow="hidden">
+      <Flex
+        h="100vh"
+        w="100vw"
+        overflow="hidden"
+        direction={{ base: "column", lg: "row" }}
+      >
         {/* 左側影片區 */}
         <Box
           position="relative"
           w={{ base: "100%", lg: "50%" }}
-          h="100vh"
+          h={{ base: "40vh", lg: "100vh" }}
           overflow="hidden"
           className="animate-slide-in-left"
         >
@@ -104,21 +109,16 @@ export default function HomePage() {
         {/* 右側表單區 */}
         <Flex
           w={{ base: "100%", lg: "50%" }}
-          h="100vh"
-          bg={{ base: "rgba(248,250,252,0.95)", lg: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)" }}
+          h={{ base: "60vh", lg: "100vh" }}
+          bg="linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)"
           alignItems="center"
           justifyContent="center"
-          p={8}
-          position={{ base: "absolute", lg: "relative" }}
-          top={{ base: "0", lg: "auto" }}
-          left={{ base: "0", lg: "auto" }}
-          zIndex={{ base: 2, lg: 1 }}
-          backdropFilter={{ base: "blur(10px)", lg: "none" }}
+          p={{ base: 6, lg: 8 }}
           className="animate-slide-in-right"
         >
-          <VStack spacing={8} w="full" maxW="480px" align="center">
+          <VStack spacing={{ base: 4, lg: 8 }} w="full" maxW="480px" align="center">
             {/* MBTI 標題 */}
-            <VStack spacing={4} textAlign="center" className="animate-fade-in-up animate-delay-200">
+            <VStack spacing={{ base: 2, lg: 4 }} textAlign="center" className="animate-fade-in-up animate-delay-200">
               <Box
                 px={6}
                 py={3}
@@ -161,7 +161,7 @@ export default function HomePage() {
             {/* 表單卡片 */}
             <Box
               w="full"
-              p={8}
+              p={{ base: 6, lg: 8 }}
               bg="white"
               borderRadius="3xl"
               shadow="2xl"
@@ -200,7 +200,7 @@ export default function HomePage() {
                       placeholder={isOtpFromUrl ? "授權碼已自動填入" : "請輸入您的測試授權碼"}
                       textAlign="center"
                       size="lg"
-                      h="56px"
+                      h={{ base: "48px", lg: "56px" }}
                       bg="gray.50"
                       border="2px solid"
                       borderColor={isOtpFromUrl ? "blue.300" : "gray.200"}
@@ -264,7 +264,7 @@ export default function HomePage() {
             {/* 開始測試按鈕 */}
             <Button
               w="full"
-              h="56px"
+              h={{ base: "48px", lg: "56px" }}
               bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
               color="white"
               variant="solid"
