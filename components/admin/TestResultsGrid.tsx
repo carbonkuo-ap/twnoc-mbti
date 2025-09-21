@@ -209,7 +209,6 @@ const TestResultsGrid: React.FC<TestResultsGridProps> = ({
     params.api.sizeColumnsToFit();
   };
 
-  console.log('TestResultsGrid rendering with', testResults.length, 'results');
 
   return (
     <div style={{ width: '100%' }}>

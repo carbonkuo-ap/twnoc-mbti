@@ -97,7 +97,7 @@ const OTPTokensGrid: React.FC<OTPTokensGridProps> = ({
         />
       </HStack>
     );
-  }, [onDeleteToken]);
+  }, [onDeleteToken, CopyUrlButton]);
 
   // Token 渲染器
   const TokenCellRenderer = (props: any) => {
@@ -239,20 +239,9 @@ const OTPTokensGrid: React.FC<OTPTokensGridProps> = ({
   const gridRef = React.useRef<AgGridReact>(null);
 
   const onGridReady = (params: GridReadyEvent) => {
-    console.log('AG Grid ready with', tokens.length, 'tokens');
-    console.log('Grid API:', params.api);
-    console.log('Grid columns:', params.api.getColumnDefs());
-    console.log('Grid row data:', params.api.getModel().getRowCount());
-
-    // 測試 API 是否正常工作
-    setTimeout(() => {
-      console.log('Testing AG Grid API...');
-      params.api.refreshCells();
-      params.api.sizeColumnsToFit();
-    }, 1000);
+    params.api.sizeColumnsToFit();
   };
 
-  console.log('OTPTokensGrid rendering with tokens:', tokens);
 
   return (
     <div style={{ width: '100%' }}>
