@@ -14,9 +14,9 @@ import {
   Box
 } from "@chakra-ui/react";
 import { FiArrowRight } from "react-icons/fi";
-import Image from "next/image";
 
 import MainLayout from "../components/layouts/main-layout";
+import { getAssetPath } from "../lib/utils/paths";
 
 export default function HomePage() {
   const [otpToken, setOtpToken] = useState('');
@@ -63,7 +63,7 @@ export default function HomePage() {
     <>
       <MainLayout
         backgroundType="video"
-        videoSrc="/video/original-c8e62757e4f0b807908cbcc6962cad10.mp4"
+        videoSrc={getAssetPath("/video/original-c8e62757e4f0b807908cbcc6962cad10.mp4")}
       >
         <Flex
           position="relative"
