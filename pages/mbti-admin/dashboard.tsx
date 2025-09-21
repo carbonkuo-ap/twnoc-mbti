@@ -209,14 +209,42 @@ export default function AdminDashboard() {
       setError(`載入資料時發生錯誤: ${error instanceof Error ? error.message : String(error)}`);
 
       // 即使出錯也要設定一個空的 stats 讓 UI 能顯示
-      setStats({
-        totalTests: 0,
-        todayTests: 0,
-        popularType: 'N/A',
-        recentTests: [],
-        firebaseTests: [],
-        localTests: []
-      });
+      // 為了測試 AG-Grid 功能，添加一些模擬測試資料
+      const mockTestResults: FirebaseTestResult[] = [
+        {
+          id: 'mock-1',
+          timestamp: Date.now() - 1000 * 60 * 30, // 30分鐘前
+          testAnswers: ['A', 'B', 'A', 'B'],
+          testScores: ['E', 'N', 'T', 'J'],
+          otpToken: 'demo-token-001',
+          testStartTime: Date.now() - 1000 * 60 * 35,
+          testDuration: 300000, // 5分鐘
+          completedAt: Date.now() - 1000 * 60 * 30
+        },
+        {
+          id: 'mock-2',
+          timestamp: Date.now() - 1000 * 60 * 60 * 2, // 2小時前
+          testAnswers: ['B', 'A', 'B', 'A'],
+          testScores: ['I', 'S', 'F', 'P'],
+          otpToken: 'demo-token-002',
+          testStartTime: Date.now() - 1000 * 60 * 60 * 2 - 1000 * 60 * 8,
+          testDuration: 480000, // 8分鐘
+          completedAt: Date.now() - 1000 * 60 * 60 * 2
+        },
+        {
+          id: 'mock-3',
+          timestamp: Date.now() - 1000 * 60 * 60 * 24, // 1天前
+          testAnswers: ['A', 'A', 'A', 'A'],
+          testScores: ['E', 'N', 'F', 'J'],
+          otpToken: 'demo-token-003',
+          testStartTime: Date.now() - 1000 * 60 * 60 * 24 - 1000 * 60 * 6,
+          testDuration: 360000, // 6分鐘
+          completedAt: Date.now() - 1000 * 60 * 60 * 24
+        }
+      ];
+
+      const processedStats = processTestResults(mockTestResults);
+      setStats(processedStats);
     } finally {
       console.log('設定載入狀態為 false');
       setIsLoading(false);

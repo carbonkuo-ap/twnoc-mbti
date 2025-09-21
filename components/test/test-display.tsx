@@ -8,7 +8,11 @@ import OTPVerification from "./otp-verification";
 import { extractOTPFromUrl } from "../../lib/otp";
 import useTestTimerStore from "../../store/use-test-timer";
 
-export default function TestDisplay() {
+interface TestDisplayProps {
+  onBackgroundChange: (type: 'gradient' | 'image' | 'video', src?: string) => void;
+}
+
+export default function TestDisplay({ onBackgroundChange }: TestDisplayProps) {
   const [showTestInstructions, setShowTestInstructions] = useState(true);
   const [isOTPVerified, setIsOTPVerified] = useState(false);
   const [verifiedOTPToken, setVerifiedOTPToken] = useState<string>('');
@@ -34,6 +38,18 @@ export default function TestDisplay() {
       setHasSeenInstructions(true);
     }
   }, []);
+
+  // Handle background changes based on test state
+  useEffect(() => {
+    if (showTestInstructions && isOTPVerified) {
+      // During test instructions: use home-bottom.png image
+      onBackgroundChange('image', `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/images/home-bottom.png`);
+    } else if (!showTestInstructions && hasSeenInstructions && isOTPVerified) {
+      // During test questions: use original gradient
+      onBackgroundChange('gradient');
+    }
+    // Keep video background for initial state and OTP verification
+  }, [showTestInstructions, isOTPVerified, hasSeenInstructions, onBackgroundChange]);
 
 
   function handleCloseTestInstructions() {

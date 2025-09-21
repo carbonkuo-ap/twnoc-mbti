@@ -4,13 +4,45 @@ import { Flex, Box } from "@chakra-ui/react";
 
 import Nav from "../common/nav";
 import Footer from "../common/footer";
+import VideoBackground from "../VideoBackground";
+import Image from "next/image";
+
+type BackgroundType = 'gradient' | 'image' | 'video' | 'none';
 
 interface MainLayoutProps {
   children: ReactNode;
-  hideBackground?: boolean
+  hideBackground?: boolean;
+  backgroundType?: BackgroundType;
+  videoSrc?: string;
+  imageSrc?: string;
 }
 
 export default function MainLayout(props: MainLayoutProps) {
+  const {
+    children,
+    hideBackground = false,
+    backgroundType = 'gradient',
+    videoSrc,
+    imageSrc
+  } = props;
+
+  // Determine background based on type
+  const getBackground = () => {
+    if (hideBackground || backgroundType === 'none') {
+      return 'transparent';
+    }
+
+    switch (backgroundType) {
+      case 'video':
+        return 'transparent'; // Video will be handled separately
+      case 'image':
+        return 'transparent'; // Image will be handled separately
+      case 'gradient':
+      default:
+        return 'linear-gradient(to bottom, rgba(66, 152, 255, 1) 0%, rgba(66, 152, 255, 0.6) 80px, rgba(127, 187, 255, 0.6), rgba(244, 244, 180, 0.6), rgba(252, 242, 59, 0.6))';
+    }
+  };
+
   return (
     <>
       <Head>
@@ -28,10 +60,42 @@ export default function MainLayout(props: MainLayoutProps) {
           href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/favicon.ico`}
         />
       </Head>
+
+      {/* Background Components */}
+      {backgroundType === 'video' && videoSrc && (
+        <VideoBackground
+          videoSrc={videoSrc}
+          overlay={true}
+          overlayOpacity={0.75}
+        />
+      )}
+
+      {backgroundType === 'image' && imageSrc && (
+        <Box
+          position="fixed"
+          top="0"
+          left="0"
+          width="100%"
+          height="100%"
+          zIndex="-1"
+        >
+          <Image
+            alt="background"
+            src={imageSrc}
+            fill
+            style={{
+              objectFit: 'cover',
+              objectPosition: 'center'
+            }}
+            priority
+          />
+        </Box>
+      )}
+
       <Box
         w="full"
         minH="100vh"
-        background={props.hideBackground ? 'transparent' : 'linear-gradient(to bottom, rgba(66, 152, 255, 1) 0%, rgba(66, 152, 255, 0.6) 80px, rgba(127, 187, 255, 0.6), rgba(244, 244, 180, 0.6), rgba(252, 242, 59, 0.6))'}
+        background={getBackground()}
       >
         <Nav />
         <Flex
@@ -42,7 +106,7 @@ export default function MainLayout(props: MainLayoutProps) {
           alignItems="center"
           position="relative"
         >
-          {props.children}
+          {children}
         </Flex>
       </Box>
       <Footer />

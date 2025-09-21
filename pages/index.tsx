@@ -11,7 +11,6 @@ import {
   HStack,
   FormControl,
   FormLabel,
-  Divider,
   Box
 } from "@chakra-ui/react";
 import { FiArrowRight } from "react-icons/fi";
@@ -62,7 +61,10 @@ export default function HomePage() {
 
   return (
     <>
-      <MainLayout>
+      <MainLayout
+        backgroundType="video"
+        videoSrc="/video/original-c8e62757e4f0b807908cbcc6962cad10.mp4"
+      >
         <Flex
           position="relative"
           w={{
@@ -102,9 +104,10 @@ export default function HomePage() {
           <Text
             fontSize={{ base: "lg", md: "xl" }}
             align="center"
-            color="gray.600"
+            color="white"
             fontWeight="medium"
             lineHeight="relaxed"
+            textShadow="0 2px 4px rgba(0,0,0,0.8)"
           >
             探索你的個性類型，更深入地認識自己
           </Text>
@@ -113,14 +116,15 @@ export default function HomePage() {
             <Box
               w="full"
               p={8}
-              bg="linear-gradient(135deg, #2563eb 0%, #1e40af 100%)"
-              borderRadius="2xl"
+              bg="rgba(15, 23, 42, 0.9)"
+              backdropFilter="blur(20px)"
+              borderRadius="3xl"
               shadow="2xl"
-              border="1px solid"
-              borderColor="primary.300"
+              border="2px solid"
+              borderColor="rgba(147, 197, 253, 0.4)"
               position="relative"
               overflow="hidden"
-              className="animate-bounce-in animate-pulse-glow"
+              className="animate-bounce-in"
               _before={{
                 content: '""',
                 position: "absolute",
@@ -146,13 +150,13 @@ export default function HomePage() {
               <VStack spacing={6}>
                 <Box textAlign="center">
                   <Text
-                    fontSize="3xl"
+                    fontSize="4xl"
                     mb={2}
                     role="img"
                     aria-label="psychology"
                     className="animate-float"
                   >
-                    🧠
+                    🎯
                   </Text>
                   <FormControl>
                     <FormLabel
@@ -237,20 +241,21 @@ export default function HomePage() {
 
             <Button
               w="full"
-              bg="linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)"
+              bg="linear-gradient(135deg, rgba(14, 165, 233, 1) 0%, rgba(2, 132, 199, 1) 100%)"
+              backdropFilter="blur(15px)"
               color="white"
               variant="solid"
               rightIcon={<FiArrowRight size={24} />}
               onClick={handleStartTestWithOTP}
               size="lg"
-              py={7}
+              py={8}
               fontSize="xl"
               fontWeight="bold"
               isDisabled={!otpToken.trim()}
-              borderRadius="xl"
-              shadow="lg"
+              borderRadius="2xl"
+              shadow="2xl"
               border="2px solid"
-              borderColor="psychology.400"
+              borderColor="rgba(56, 189, 248, 0.6)"
               _hover={{
                 transform: "translateY(-3px)",
                 shadow: "2xl",
@@ -274,22 +279,6 @@ export default function HomePage() {
             </Button>
           </VStack>
         </Flex>
-        <Image
-          alt="illustration"
-          src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/home-bottom.png`}
-          width={100}
-          height={100}
-          style={{
-            position: "absolute",
-            zIndex: 0,
-            bottom: 0,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "100%",
-            maxWidth: "600px",
-            height: "auto",
-          }}
-        />
       </MainLayout>
     </>
   );
