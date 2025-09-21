@@ -6,6 +6,7 @@ import TestInstructions from "./test-instructions";
 import TestQuestion from "./test-question";
 import OTPVerification from "./otp-verification";
 import { extractOTPFromUrl } from "../../lib/otp";
+import { getImagePath } from "../../lib/utils/paths";
 import useTestTimerStore from "../../store/use-test-timer";
 
 interface TestDisplayProps {
@@ -43,7 +44,7 @@ export default function TestDisplay({ onBackgroundChange }: TestDisplayProps) {
   useEffect(() => {
     if (showTestInstructions && isOTPVerified) {
       // During test instructions: use home-bottom.png image
-      onBackgroundChange('image', `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/images/home-bottom.png`);
+      onBackgroundChange('image', getImagePath('/images/home-bottom.png'));
     } else if (!showTestInstructions && hasSeenInstructions && isOTPVerified) {
       // During test questions: use original gradient
       onBackgroundChange('gradient');

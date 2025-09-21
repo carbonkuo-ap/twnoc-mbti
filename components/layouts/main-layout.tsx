@@ -6,6 +6,7 @@ import Nav from "../common/nav";
 import Footer from "../common/footer";
 import VideoBackground from "../VideoBackground";
 import Image from "next/image";
+import { getFaviconPath } from "../../lib/utils/paths";
 
 type BackgroundType = 'gradient' | 'image' | 'video' | 'none';
 
@@ -57,7 +58,7 @@ export default function MainLayout(props: MainLayoutProps) {
         />
         <link
           rel="icon"
-          href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/favicon.ico`}
+          href={getFaviconPath()}
         />
       </Head>
 

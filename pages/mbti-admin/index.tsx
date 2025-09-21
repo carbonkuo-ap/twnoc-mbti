@@ -22,6 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { isAuthenticated, createAdminSession, validateAdminCredentials } from '../../lib/auth';
+import { getFaviconPath } from '../../lib/utils/paths';
 import {
   recordLoginFailure,
   recordLoginSuccess,
@@ -155,7 +156,7 @@ export default function AdminLogin() {
         <title>MBTI 管理後台 - 登入</title>
         <meta name="description" content="MBTI 管理後台登入頁面" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/favicon.ico`} />
+        <link rel="icon" href={getFaviconPath()} />
       </Head>
       <Container maxW="md" py={20}>
       <Card>

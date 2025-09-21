@@ -87,6 +87,7 @@ import {
   generateShareableOTPUrl,
   OTPToken
 } from '../../lib/otp';
+import { getFaviconPath, getImagePath } from '../../lib/utils/paths';
 import TestResultsGrid from '../../components/admin/TestResultsGrid';
 import OTPTokensGrid from '../../components/admin/OTPTokensGrid';
 
@@ -639,7 +640,7 @@ export default function AdminDashboard() {
         <title>MBTI 管理後台 - 儀表板</title>
         <meta name="description" content="MBTI 測試管理後台儀表板" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/favicon.ico`} />
+        <link rel="icon" href={getFaviconPath()} />
       </Head>
       <Container maxW="6xl" py={8}>
       <VStack spacing={6} align="stretch">
@@ -1034,7 +1035,7 @@ export default function AdminDashboard() {
                       </Heading>
                       <Image
                         alt="illustration"
-                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/mbti/${personalityClassGroup.type.toUpperCase()}.png`}
+                        src={getImagePath(`/images/mbti/${personalityClassGroup.type.toUpperCase()}.png`)}
                         width={150}
                         height={150}
                       />

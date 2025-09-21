@@ -20,6 +20,7 @@ import {
   getPersonalityClassGroupByTestScores,
 } from "../../lib/personality-test";
 import { getOTPTokenInfo, OTPToken } from "../../lib/otp";
+import { getImagePath } from "../../lib/utils/paths";
 
 interface TestResultProps {
   testResult: ITestResult;
@@ -76,7 +77,7 @@ export default function TestResult(props: TestResultProps) {
       </Text> */}
       <Image
         alt="illustration"
-        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/mbti/${personalityClassGroup.type.toLocaleUpperCase()}.png`}
+        src={getImagePath(`/images/mbti/${personalityClassGroup.type.toLocaleUpperCase()}.png`)}
         width={200}
         height={200}
       />
