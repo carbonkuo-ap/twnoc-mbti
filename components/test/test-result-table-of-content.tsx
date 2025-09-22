@@ -31,6 +31,15 @@ export default function TestResultTableOfContent() {
   ) {
     event.preventDefault();
     setActiveId(id);
+
+    // 添加平滑滾動到目標元素
+    const targetElement = document.getElementById(id);
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
   }
 
   return (

@@ -786,37 +786,18 @@ export default function AdminDashboard() {
                 <TabPanel>
                   <Card>
                     <CardHeader>
-                      <Flex justify="space-between" align="center">
-                        <Heading size="md">最近的測試記錄</Heading>
-                        <HStack spacing={2}>
-                          <Button
-                            leftIcon={<FiDownload />}
-                            size="sm"
-                            variant="outline"
-                            onClick={handleExportData}
-                            isLoading={isExporting}
-                            loadingText="匯出中"
-                          >
-                            匯出資料
-                          </Button>
-                          <Button
-                            leftIcon={<FiUpload />}
-                            size="sm"
-                            variant="outline"
-                            onClick={onImportModalOpen}
-                          >
-                            匯入資料
-                          </Button>
-                        </HStack>
-                      </Flex>
+                      <Heading size="md">最近的測試記錄</Heading>
                     </CardHeader>
                     <CardBody>
                       {stats.recentTests.length > 0 ? (
                         <TestResultsGrid
                           testResults={stats.recentTests as FirebaseTestResult[]}
                           otpUsageStats={otpUsageStats}
+                          otpTokens={otpTokens}
                           onDeleteTest={handleDeleteTestResult}
                           onViewReport={handlePersonalityTypeClick}
+                          onExportData={handleExportData}
+                          onImportData={handleImportData}
                         />
                       ) : (
                         <Text color="gray.500" textAlign="center" py={8}>

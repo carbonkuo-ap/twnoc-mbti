@@ -13,7 +13,10 @@ import {
   UnorderedList,
   ListItem,
   Badge,
+  IconButton,
+  Box,
 } from "@chakra-ui/react";
+import { FiArrowUp } from "react-icons/fi";
 
 import {
   TestResult as ITestResult,
@@ -31,6 +34,7 @@ export default function TestResult(props: TestResultProps) {
     props.testResult.testScores
   );
   const [otpInfo, setOtpInfo] = useState<OTPToken | null>(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
     const loadOTPInfo = async () => {
@@ -41,6 +45,23 @@ export default function TestResult(props: TestResultProps) {
     };
     loadOTPInfo();
   }, [props.testResult.otpToken]);
+
+  // Back to top button visibility handler
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
 
   return (
     <Flex
@@ -105,7 +126,7 @@ export default function TestResult(props: TestResultProps) {
           </Text>
         ))}
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="jungian-functional-preference-ordering"
         my={4}
         as="h2"
@@ -167,7 +188,7 @@ export default function TestResult(props: TestResultProps) {
         </Tbody>
       </Table>
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="general-traits"
         my={4}
         as="h2"
@@ -188,7 +209,7 @@ export default function TestResult(props: TestResultProps) {
         ))}
       </UnorderedList>
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="relationship-strengths"
         my={4}
         as="h2"
@@ -211,7 +232,7 @@ export default function TestResult(props: TestResultProps) {
         )}
       </UnorderedList>
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="relationship-weaknesses"
         my={4}
         as="h2"
@@ -234,7 +255,7 @@ export default function TestResult(props: TestResultProps) {
         )}
       </UnorderedList>
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="success-definition"
         my={4}
         as="h2"
@@ -259,7 +280,7 @@ export default function TestResult(props: TestResultProps) {
           </Text>
         ))}
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="strengths"
         my={4}
         as="h2"
@@ -280,7 +301,7 @@ export default function TestResult(props: TestResultProps) {
         ))}
       </UnorderedList>
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="special-gifts"
         my={4}
         as="h2"
@@ -301,7 +322,7 @@ export default function TestResult(props: TestResultProps) {
         ))}
       </UnorderedList>
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="potential-problem-areas"
         my={4}
         as="h2"
@@ -343,7 +364,7 @@ export default function TestResult(props: TestResultProps) {
         </UnorderedList>
       )}
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="explanation-of-problems"
         my={4}
         as="h2"
@@ -369,7 +390,7 @@ export default function TestResult(props: TestResultProps) {
           </Text>
         ))}
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="solutions"
         my={4}
         as="h2"
@@ -391,7 +412,7 @@ export default function TestResult(props: TestResultProps) {
           </Text>
         ))}
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="living-happily-tips"
         my={4}
         as="h2"
@@ -416,7 +437,7 @@ export default function TestResult(props: TestResultProps) {
         personalityClassGroup.suggestions.length === 1 && (
           <>
             <Heading
-              scrollMarginTop={8}
+              scrollMarginTop={16}
               id="specific-suggestions"
               my={4}
               as="h2"
@@ -445,7 +466,7 @@ export default function TestResult(props: TestResultProps) {
         personalityClassGroup.suggestions.length > 1 && (
           <>
             <Heading
-              scrollMarginTop={8}
+              scrollMarginTop={16}
               id="specific-suggestions"
               my={4}
               as="h2"
@@ -468,7 +489,7 @@ export default function TestResult(props: TestResultProps) {
           </>
         )}
       <Heading
-        scrollMarginTop={8}
+        scrollMarginTop={16}
         id="ten-rules-to-live-to-achieve-success"
         my={4}
         as="h2"
@@ -488,6 +509,30 @@ export default function TestResult(props: TestResultProps) {
           </ListItem>
         ))}
       </UnorderedList>
+
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <Box
+          position="fixed"
+          bottom="6"
+          right="6"
+          zIndex={1000}
+        >
+          <IconButton
+            aria-label="回到頂部"
+            icon={<FiArrowUp />}
+            size="lg"
+            colorScheme="blue"
+            isRound
+            shadow="lg"
+            onClick={scrollToTop}
+            _hover={{
+              transform: 'scale(1.1)',
+            }}
+            transition="transform 0.2s"
+          />
+        </Box>
+      )}
     </Flex>
   );
 }

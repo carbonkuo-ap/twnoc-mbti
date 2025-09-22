@@ -3,7 +3,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import "@fontsource/poppins/400.css";
 import "../styles/animations.css";
 import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useEffect } from "react";
 
 import theme from "../theme";

@@ -14,7 +14,8 @@ export default function useHeadingsObserver() {
     };
 
     observer.current = new IntersectionObserver(handleObserver, {
-      rootMargin: "-20% 0% -35% 0px",
+      rootMargin: "-10% 0% -80% 0px",
+      threshold: 0.1,
     });
 
     const elements = document.querySelectorAll("h2");

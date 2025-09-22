@@ -5,10 +5,8 @@ import {
   UnorderedList,
   ListItem,
   Button,
-  HStack,
+  Box,
 } from "@chakra-ui/react";
-import Link from "next/link";
-import { BiHistory } from "react-icons/bi";
 
 interface TestInstructionsProps {
   onCloseTestInstructions: () => void;
@@ -16,49 +14,46 @@ interface TestInstructionsProps {
 
 export default function TestInstructions(props: TestInstructionsProps) {
   return (
-    <Flex
-      h="full"
-      px={4}
-      direction="column"
-      gap={8}
-    >
-      <Heading>說明</Heading>
+    <Box position="relative" h="full" w="full">
+
       <Flex
+        h="full"
+        px={4}
         direction="column"
-        gap={2}
+        gap={8}
+        position="relative"
+        zIndex={1}
       >
-        <Text>
-          完成測試大約只需要15分鐘。以下是一些完成這個測試的提示：
-        </Text>
-        <UnorderedList spacing={2}>
-          <ListItem>
-            這些問題沒有正確答案。
-          </ListItem>
-          <ListItem>
-            快速回答問題，不要過度分析。有些可能措辭不當，選擇你感覺最合適的答案。
-          </ListItem>
-          <ListItem>
-            根據「你實際的情況」回答問題，而不是「你希望別人如何看待你」。
-          </ListItem>
-        </UnorderedList>
-      </Flex>
-      <HStack justifyContent="space-between" w="full">
-        <Link href="/test/result/history">
-          <Button
-            variant="outline"
-            leftIcon={<BiHistory size={20} />}
-            colorScheme="gray"
-          >
-            查看歷史紀錄
-          </Button>
-        </Link>
-        <Button
-          colorScheme="primary"
-          onClick={props.onCloseTestInstructions}
+        <Heading>探索小提醒</Heading>
+        <Flex
+          direction="column"
+          gap={2}
         >
-          好的，我明白了！
-        </Button>
-      </HStack>
-    </Flex>
+          <Text>
+            整份探索大概 15 分鐘就能完成～輕鬆來就好！
+          </Text>
+          <UnorderedList spacing={2}>
+            <ListItem>
+              沒有對或錯：放心，這不是考試，每個答案都只是反映你的偏好而已。
+            </ListItem>
+            <ListItem>
+              直覺最重要：看到題目就選你第一個感覺的答案，不用想太多。
+            </ListItem>
+            <ListItem>
+              做自己就好：請按照你平常的樣子回答，不用迎合別人。
+            </ListItem>
+          </UnorderedList>
+        </Flex>
+        <Flex justifyContent="center" w="full">
+          <Button
+            colorScheme="primary"
+            onClick={props.onCloseTestInstructions}
+            size="lg"
+          >
+            好的，我明白了！
+          </Button>
+        </Flex>
+      </Flex>
+    </Box>
   );
 }

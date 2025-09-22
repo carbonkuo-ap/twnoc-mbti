@@ -8,7 +8,7 @@ import VideoBackground from "../VideoBackground";
 import Image from "next/image";
 import { getFaviconPath } from "../../lib/utils/paths";
 
-type BackgroundType = 'gradient' | 'image' | 'video' | 'none';
+type BackgroundType = "gradient" | "image" | "video" | "none";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -22,35 +22,35 @@ export default function MainLayout(props: MainLayoutProps) {
   const {
     children,
     hideBackground = false,
-    backgroundType = 'gradient',
+    backgroundType = "gradient",
     videoSrc,
-    imageSrc
+    imageSrc,
   } = props;
 
   // Determine background based on type
   const getBackground = () => {
-    if (hideBackground || backgroundType === 'none') {
-      return 'transparent';
+    if (hideBackground || backgroundType === "none") {
+      return "transparent";
     }
 
     switch (backgroundType) {
-      case 'video':
-        return 'transparent'; // Video will be handled separately
-      case 'image':
-        return 'transparent'; // Image will be handled separately
-      case 'gradient':
+      case "video":
+        return "transparent"; // Video will be handled separately
+      case "image":
+        return "transparent"; // Image will be handled separately
+      case "gradient":
       default:
-        return 'linear-gradient(to bottom, rgba(66, 152, 255, 1) 0%, rgba(66, 152, 255, 0.6) 80px, rgba(127, 187, 255, 0.6), rgba(244, 244, 180, 0.6), rgba(252, 242, 59, 0.6))';
+        return "linear-gradient(to bottom, rgba(66, 152, 255, 1) 0%, rgba(66, 152, 255, 0.6) 80px, rgba(127, 187, 255, 0.6), rgba(244, 244, 180, 0.6), rgba(252, 242, 59, 0.6))";
     }
   };
 
   return (
     <>
       <Head>
-        <title>MBTI 性格測試</title>
+        <title>MBTI 性格探索</title>
         <meta
           name="description"
-          content="MBTI 性格測試"
+          content="MBTI 性格探索"
         />
         <meta
           name="viewport"
@@ -63,7 +63,7 @@ export default function MainLayout(props: MainLayoutProps) {
       </Head>
 
       {/* Background Components */}
-      {backgroundType === 'video' && videoSrc && (
+      {backgroundType === "video" && videoSrc && (
         <VideoBackground
           videoSrc={videoSrc}
           overlay={true}
@@ -71,7 +71,7 @@ export default function MainLayout(props: MainLayoutProps) {
         />
       )}
 
-      {backgroundType === 'image' && imageSrc && (
+      {backgroundType === "image" && imageSrc && (
         <Box
           position="fixed"
           top="0"
@@ -85,8 +85,10 @@ export default function MainLayout(props: MainLayoutProps) {
             src={imageSrc}
             fill
             style={{
-              objectFit: 'cover',
-              objectPosition: 'center'
+              objectFit: "contain",
+              objectPosition: "center",
+              opacity: 0.3,
+              filter: "blur(2px)",
             }}
             priority
           />

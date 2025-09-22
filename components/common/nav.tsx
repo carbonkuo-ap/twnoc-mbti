@@ -32,12 +32,12 @@ export default function Nav() {
             textShadow="0 2px 8px rgba(0,0,0,0.5)"
             _hover={{
               color: "cyan.200",
-              textShadow: "0 0 10px rgba(255,255,255,0.8)"
+              textShadow: "0 0 10px rgba(255,255,255,0.8)",
             }}
             transition="all 0.3s ease"
             p={2}
           >
-            MBTI 性格測試
+            MBTI 性格探索
           </Button>
         </Link>
       </Flex>

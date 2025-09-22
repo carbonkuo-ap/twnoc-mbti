@@ -2,7 +2,7 @@
 
 ## 專案簡介
 
-本專案實作了 MBTI（Myers-Briggs Type Indicator）性格測試，透過一系列問題，幫助使用者瞭解自己的個性特徵，並確定他們的 MBTI 類型。MBTI 將個性分為四個維度，最終組合出 16 種性格類型，使用者可根據測試結果瞭解更多關於自己的資訊。
+本專案實作了 MBTI（Myers-Briggs Type Indicator）性格探索，透過一系列問題，幫助使用者瞭解自己的個性特徵，並確定他們的 MBTI 類型。MBTI 將個性分為四個維度，最終組合出 16 種性格類型，使用者可根據測試結果瞭解更多關於自己的資訊。
 
 ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-brightgreen)
 ![Firebase](https://img.shields.io/badge/Firebase-Realtime%20Database-orange)
@@ -15,6 +15,7 @@
 ## 功能特性
 
 ### 🧠 核心測驗功能
+
 - **🔒 OTP 授權驗證**：所有測試必須使用有效的 OTP Token 才能開始
 - **16 種 MBTI 類型**：透過測試瞭解您屬於哪種 MBTI 類型（如：INTJ、ENFP）
 - **使用者友好界面**：簡潔直觀的設計，引導使用者完成測試問題，支援點擊動畫反饋
@@ -23,24 +24,28 @@
 - **URL 自動驗證**：支援透過 URL 參數自動填入 OTP Token
 
 ### 🔐 管理後台功能
+
 - **隱藏管理介面**：位於 `/mbti-admin` 的安全管理後台
 - **即時統計監控**：總測試次數、今日測試數、最受歡迎類型
 - **測試記錄管理**：查看所有測試歷史記錄和詳細資訊
 - **可點擊人格報告**：點擊任何人格類型可查看標準化報告
 
 ### 🎯 OTP 授權系統
+
 - **Token 授權機制**：建立有時效性的一次性測試授權碼
 - **以天為單位過期**：可設定 1-365 天的有效期限
 - **跨設備分享**：透過 URL 連結分享，任何設備都能存取
 - **使用追蹤**：追蹤每個 Token 的使用次數和狀態
 
 ### ☁️ Firebase 雲端架構
+
 - **Firebase Realtime Database**：所有資料完全儲存在雲端
 - **即時同步**：測試結果立即同步到雲端資料庫
 - **跨設備存取**：管理員可從任何設備存取完整資料
 - **安全性保障**：移除本地儲存，避免資料同步衝突
 
 ### 📊 資料管理功能
+
 - **Firebase 匯出**：從 Firebase 匯出完整測試記錄
 - **OTP 管理**：完整的 Token 生命週期管理
 - **審計日誌**：完整記錄所有操作歷史
@@ -59,6 +64,7 @@
 - **部署平台**: GitHub Pages
 
 ### 🔄 架構變更 (v2.0)
+
 - ✅ **移除本地儲存依賴**: 不再使用 IndexedDB/localStorage
 - ✅ **Firebase-only 架構**: 所有資料統一存放在 Firebase
 - ✅ **簡化認證**: 移除 TOTP 雙因素認證，改用 OTP Token
@@ -93,12 +99,14 @@
    ```
 
    **必要設定**：
+
    - `NEXT_PUBLIC_ADMIN_USERNAME`: 管理員帳號
    - `NEXT_PUBLIC_ADMIN_HASH`: 管理員密碼雜湊
    - `NEXT_PUBLIC_ADMIN_SALT`: 密碼加密鹽值
    - `NEXT_PUBLIC_ENCRYPTION_KEY`: 資料加密金鑰
 
    **Firebase 設定（必要）**：
+
    - `NEXT_PUBLIC_FIREBASE_DATABASE_URL`: Firebase Realtime Database URL
    - `NEXT_PUBLIC_FIREBASE_API_KEY`: Firebase API 金鑰
    - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: Firebase 專案 ID
@@ -122,23 +130,27 @@
 ### 核心功能
 
 #### 📊 統計儀表板
+
 - **即時統計**：總測試次數、今日測試數、最受歡迎類型
 - **Firebase 狀態**：顯示雲端同步連接狀態
 - **OTP 統計**：活躍 Token 數量和使用情況
 
 #### 🎯 OTP 授權管理
-- **Token 建立**：設定有效期限（1-365天）和描述
+
+- **Token 建立**：設定有效期限（1-365 天）和描述
 - **分享連結**：一鍵複製可跨設備使用的測試連結
 - **使用監控**：追蹤每個 Token 的使用次數和狀態
 - **批次管理**：刪除、清理過期 Token
 
 #### 📋 測試記錄管理
+
 - **Firebase 資料**：查看所有 Firebase 雲端測試資料
 - **OTP 追蹤**：顯示使用哪個 Token 進行的測試
 - **可點擊報告**：點擊人格類型可查看標準化報告
 - **即時更新**：測試完成後立即在後台顯示
 
 #### 💾 資料管理
+
 - **匯出功能**：從 Firebase 匯出 JSON 格式的完整資料
 - **雲端同步**：所有資料即時同步到 Firebase
 - **統計報表**：測試次數、OTP 使用率等統計資訊
@@ -158,6 +170,7 @@
 在 GitHub Repository Settings > Secrets and variables > Actions 中設定：
 
 **基本設定**：
+
 ```
 NEXT_PUBLIC_BASE_PATH=/your-repo-name
 NEXT_PUBLIC_ADMIN_USERNAME=your-admin-username
@@ -167,6 +180,7 @@ NEXT_PUBLIC_ENCRYPTION_KEY=your-encryption-key
 ```
 
 **Firebase 設定**（跨設備功能）：
+
 ```
 NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain
@@ -181,26 +195,27 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 
 如果您已經在 GitHub 中設定了 Firebase 環境變數，請確認以下對應關係：
 
-| GitHub Secret 名稱 | 對應的環境變數 |
-|---|---|
-| `BASE_PATH` | `NEXT_PUBLIC_BASE_PATH` |
-| `ADMIN_USERNAME` | `NEXT_PUBLIC_ADMIN_USERNAME` |
-| `ENCRYPTION_KEY` | `NEXT_PUBLIC_ENCRYPTION_KEY` |
-| `ADMIN_HASH` | `NEXT_PUBLIC_ADMIN_HASH` |
-| `ADMIN_SALT` | `NEXT_PUBLIC_ADMIN_SALT` |
-| `FIREBASE_API_KEY` | `NEXT_PUBLIC_FIREBASE_API_KEY` |
-| `FIREBASE_AUTH_DOMAIN` | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` |
-| `FIREBASE_DATABASE_URL` | `NEXT_PUBLIC_FIREBASE_DATABASE_URL` |
-| `FIREBASE_PROJECT_ID` | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` |
-| `FIREBASE_STORAGE_BUCKET` | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` |
+| GitHub Secret 名稱             | 對應的環境變數                             |
+| ------------------------------ | ------------------------------------------ |
+| `BASE_PATH`                    | `NEXT_PUBLIC_BASE_PATH`                    |
+| `ADMIN_USERNAME`               | `NEXT_PUBLIC_ADMIN_USERNAME`               |
+| `ENCRYPTION_KEY`               | `NEXT_PUBLIC_ENCRYPTION_KEY`               |
+| `ADMIN_HASH`                   | `NEXT_PUBLIC_ADMIN_HASH`                   |
+| `ADMIN_SALT`                   | `NEXT_PUBLIC_ADMIN_SALT`                   |
+| `FIREBASE_API_KEY`             | `NEXT_PUBLIC_FIREBASE_API_KEY`             |
+| `FIREBASE_AUTH_DOMAIN`         | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`         |
+| `FIREBASE_DATABASE_URL`        | `NEXT_PUBLIC_FIREBASE_DATABASE_URL`        |
+| `FIREBASE_PROJECT_ID`          | `NEXT_PUBLIC_FIREBASE_PROJECT_ID`          |
+| `FIREBASE_STORAGE_BUCKET`      | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`      |
 | `FIREBASE_MESSAGING_SENDER_ID` | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` |
-| `FIREBASE_APP_ID` | `NEXT_PUBLIC_FIREBASE_APP_ID` |
+| `FIREBASE_APP_ID`              | `NEXT_PUBLIC_FIREBASE_APP_ID`              |
 
 詳細的 Firebase 設定步驟請參考 **[Firebase 設定指南](docs/FIREBASE_SETUP.md)**。
 
 ## 🔒 安全性
 
 本專案實作了多層次安全機制，包括：
+
 - 🎯 **OTP Token 授權**：強制性的一次性密碼驗證
 - 🛡️ **登入防護與速率限制**：防止暴力破解攻擊
 - 🔒 **資料加密儲存**：敏感資料 AES 加密保護
@@ -209,6 +224,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 - ☁️ **Firebase 安全規則**：雲端資料庫存取控制
 
 ### 🔄 安全性改進 (v2.0)
+
 - ✅ **簡化認證流程**：移除複雜的 TOTP 雙因素認證
 - ✅ **統一授權機制**：所有測試使用 OTP Token 驗證
 - ✅ **雲端安全**：Firebase 原生安全機制保護

@@ -106,7 +106,7 @@ export default function TestDisplay({ onBackgroundChange }: TestDisplayProps) {
           gap={2}
           px={1}
         >
-          {!hasSeenInstructions && (
+          {!showTestInstructions && hasSeenInstructions && (
             <TestMenu />
           )}
           <Flex

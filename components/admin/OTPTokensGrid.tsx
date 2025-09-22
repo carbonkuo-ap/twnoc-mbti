@@ -1,12 +1,15 @@
 import React, { useMemo, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import {
   ColDef,
-  GridApi,
   GridReadyEvent,
 } from 'ag-grid-community';
+
+// 註冊 AG Grid 社區版模組
+ModuleRegistry.registerModules([AllCommunityModule]);
 import {
   Badge,
   HStack,
@@ -16,6 +19,11 @@ import {
   Icon,
   useClipboard,
   useToast,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Portal,
 } from '@chakra-ui/react';
 import { FiTrash2, FiCopy, FiDownload, FiExternalLink } from 'react-icons/fi';
 import { OTPToken } from '../../lib/otp';
@@ -41,37 +49,37 @@ const OTPTokensGrid: React.FC<OTPTokensGridProps> = ({
     return `${baseUrl}${basePath}/?otp=${encodeURIComponent(token)}`;
   };
 
-  // 複製 URL 按鈕組件
-  const CopyUrlButton: React.FC<{ token: string }> = ({ token }) => {
-    const url = generateShareableOTPUrl(token);
-    const { onCopy } = useClipboard(url);
-
-    const handleCopy = () => {
-      onCopy();
-      toast({
-        title: '已複製到剪貼板',
-        description: '測試連結已複製',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      });
-    };
-
-    return (
-      <IconButton
-        icon={<Icon as={FiCopy} />}
-        aria-label="複製連結"
-        size="sm"
-        variant="outline"
-        onClick={handleCopy}
-        title="複製測試連結"
-      />
-    );
-  };
-
   // 操作按鈕渲染器
   const ActionCellRenderer = useCallback((props: any) => {
     const token = props.data as OTPToken;
+
+    // 複製 URL 按鈕組件
+    const CopyUrlButton: React.FC<{ token: string }> = ({ token }) => {
+      const url = generateShareableOTPUrl(token);
+      const { onCopy } = useClipboard(url);
+
+      const handleCopy = () => {
+        onCopy();
+        toast({
+          title: '已複製到剪貼板',
+          description: '測試連結已複製',
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
+        });
+      };
+
+      return (
+        <IconButton
+          icon={<Icon as={FiCopy} />}
+          aria-label="複製連結"
+          size="sm"
+          variant="outline"
+          onClick={handleCopy}
+          title="複製測試連結"
+        />
+      );
+    };
 
     return (
       <HStack spacing={2} h="100%" align="center">
@@ -97,14 +105,21 @@ const OTPTokensGrid: React.FC<OTPTokensGridProps> = ({
         />
       </HStack>
     );
-  }, [onDeleteToken, CopyUrlButton]);
+  }, [onDeleteToken, toast]);
 
   // Token 渲染器
   const TokenCellRenderer = (props: any) => {
     const token = props.data as OTPToken;
 
     return (
-      <Text fontFamily="mono" fontSize="sm" title={token.token}>
+      <Text
+        fontFamily="mono"
+        fontSize="sm"
+        title={token.token}
+        cursor="help"
+        _hover={{ color: 'blue.600' }}
+        transition="color 0.2s ease"
+      >
         {token.token.substring(0, 8)}...
       </Text>
     );
@@ -210,7 +225,7 @@ const OTPTokensGrid: React.FC<OTPTokensGridProps> = ({
       headerName: '操作',
       field: 'actions',
       cellRenderer: ActionCellRenderer,
-      width: 200,
+      width: 180,
       sortable: false,
       filter: false,
       pinned: 'right',
@@ -239,33 +254,53 @@ const OTPTokensGrid: React.FC<OTPTokensGridProps> = ({
   const gridRef = React.useRef<AgGridReact>(null);
 
   const onGridReady = (params: GridReadyEvent) => {
+    console.log('🟢 OTPTokensGrid - AG Grid is ready!');
+    console.log('📊 Tokens count:', tokens.length);
+    console.log('📋 Sample tokens:', tokens.slice(0, 2));
+    console.log('🔧 Grid API available:', !!params.api);
     params.api.sizeColumnsToFit();
   };
 
 
+  console.log('🔄 OTPTokensGrid rendering with:', tokens.length, 'tokens');
+  console.log('📋 Column definitions:', columnDefs.map(col => col.headerName));
+
+  // 檢查AG Grid是否正確載入
+  React.useEffect(() => {
+    console.log('🎯 OTPTokensGrid useEffect - checking AG Grid');
+    console.log('🔍 ag-grid-react version available:', !!AgGridReact);
+    console.log('📊 Token data sample:', tokens.slice(0, 1));
+  }, [tokens]);
+
   return (
     <div style={{ width: '100%' }}>
-      <HStack mb={4} justify="space-between">
-        <Text fontSize="lg" fontWeight="bold">
-          OTP Token 列表 ({tokens.length} 筆記錄)
-        </Text>
-        <Button
-          leftIcon={<FiDownload />}
-          onClick={onExportCsv}
-          size="sm"
-          colorScheme="blue"
-        >
-          匯出 CSV
-        </Button>
-      </HStack>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        marginBottom: '16px',
+      }}>
+        <Menu placement="bottom-end" strategy="fixed">
+          <MenuButton as={Button} rightIcon={<Icon as={FiDownload} />} colorScheme="blue" size="sm">
+            匯出資料
+          </MenuButton>
+          <Portal>
+            <MenuList zIndex={1500}>
+              <MenuItem onClick={onExportCsv}>
+                <Icon as={FiDownload} mr={2} />
+                匯出 CSV
+              </MenuItem>
+            </MenuList>
+          </Portal>
+        </Menu>
+      </div>
 
       <div
-        className="ag-theme-alpine"
+        className="ag-theme-quartz"
         style={{
-          height: '500px',
+          height: 'calc(100vh - 200px)',
+          minHeight: '400px',
           width: '100%',
-          border: '1px solid #ddd',
-          borderRadius: '8px'
         }}
       >
         <AgGridReact
@@ -277,10 +312,9 @@ const OTPTokensGrid: React.FC<OTPTokensGridProps> = ({
           pagination={true}
           paginationPageSize={15}
           suppressCellFocus={true}
-          rowHeight={50}
+          rowHeight={48}
           animateRows={true}
-          enableRangeSelection={true}
-          suppressRowClickSelection={true}
+          rowSelection="multiple"
         />
       </div>
     </div>
