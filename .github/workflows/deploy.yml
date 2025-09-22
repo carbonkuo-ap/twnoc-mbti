@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -48,7 +48,7 @@ jobs:
         run: yarn deploy
         env:
           # 基本設定
-          NEXT_PUBLIC_BASE_PATH: ${{ secrets.BASE_PATH }}
+          NEXT_PUBLIC_BASE_PATH: ${{ secrets.NEXT_PUBLIC_BASE_PATH }}
           NEXT_PUBLIC_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
           NEXT_PUBLIC_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
           NEXT_PUBLIC_ADMIN_HASH: ${{ secrets.ADMIN_HASH }}

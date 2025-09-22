@@ -10,59 +10,46 @@ import theme from "../theme";
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    // 全域錯誤處理
+    // 全域錯誤處理 (Firebase-only 架構)
     const handleError = (error: ErrorEvent) => {
       console.error('應用程式錯誤:', error);
 
-      // 如果是加密相關錯誤，清除可能損壞的資料
-      if (error.message?.includes('解密') || error.message?.includes('crypto') || error.message?.includes('invalid')) {
-        console.warn('檢測到加密錯誤，正在清除可能損壞的資料...');
+      // 如果是 Firebase 或加密相關錯誤
+      if (error.message?.includes('firebase') ||
+          error.message?.includes('crypto') ||
+          error.message?.includes('invalid') ||
+          error.message?.includes('解密')) {
+        console.warn('檢測到應用程式錯誤，正在重新載入...');
 
-        try {
-          // 清除可能損壞的 localStorage 資料
-          const keys = Object.keys(localStorage);
-          keys.forEach(key => {
-            if (key.includes('mbti') || key.includes('admin') || key.includes('auth')) {
-              localStorage.removeItem(key);
-            }
-          });
-
-          // 重新載入頁面
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        } catch (e) {
-          console.error('清除資料時出錯:', e);
-        }
+        // 稍後重新載入頁面給用戶機會看到錯誤訊息
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error('未處理的 Promise 拒絕:', event.reason);
 
-      // 如果是 IndexedDB 相關錯誤
-      if (event.reason?.message?.includes('database') || event.reason?.message?.includes('idb')) {
-        console.warn('檢測到資料庫錯誤，正在重置...');
-
-        try {
-          indexedDB.deleteDatabase('MBTI_TEST_DB');
-          indexedDB.deleteDatabase('MBTI_AUDIT_DB');
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        } catch (e) {
-          console.error('重置資料庫時出錯:', e);
-        }
+      // 如果是 Firebase 相關錯誤
+      if (event.reason?.message?.includes('firebase') ||
+          event.reason?.message?.includes('database') ||
+          event.reason?.code?.includes('permission-denied')) {
+        console.warn('檢測到 Firebase 連接錯誤');
+        // 不自動重新載入，讓用戶知道是網路或 Firebase 問題
       }
     };
 
-    window.addEventListener('error', handleError);
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    // 只在瀏覽器環境中添加事件監聽器
+    if (typeof window !== 'undefined') {
+      window.addEventListener('error', handleError);
+      window.addEventListener('unhandledrejection', handleUnhandledRejection);
 
-    return () => {
-      window.removeEventListener('error', handleError);
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-    };
+      return () => {
+        window.removeEventListener('error', handleError);
+        window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      };
+    }
   }, []);
 
   return (
