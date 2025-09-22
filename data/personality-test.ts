@@ -387,10 +387,10 @@ export const personalityTest: TestQuestion[] = [
   },
   {
     no: 27,
-    question: "面對重要決定時，你倾向：",
+    question: "面對重要決定時，你偏好：",
     answerOptions: [
       { type: "A", answer: "經過充分計劃和考慮再行動", score: "J" },
-      { type: "B", answer: "保持開放心態，鞨機行事", score: "P" },
+      { type: "B", answer: "保持開放心態，藉機行事", score: "P" },
     ],
   },
   {
