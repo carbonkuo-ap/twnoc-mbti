@@ -11,12 +11,13 @@ const nextConfig = {
   // GitHub Pages specific configuration
   basePath: process.env.NODE_ENV === 'production' ? (process.env.NEXT_PUBLIC_BASE_PATH || '/twnoc-mbti') : '',
   assetPrefix: process.env.NODE_ENV === 'production' ? (process.env.NEXT_PUBLIC_BASE_PATH || '/twnoc-mbti') : '',
+  distDir: 'out',
   trailingSlash: true,
   images: {
     unoptimized: true
   },
 
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config) => {
     return config;
   },
 
