@@ -211,7 +211,7 @@ export default function HomePage() {
                 color="gray.800"
                 lineHeight="shorter"
               >
-                性格測試
+                性格探索
               </Heading>
 
               <Text
