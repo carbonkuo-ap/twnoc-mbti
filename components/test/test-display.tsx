@@ -5,7 +5,7 @@ import TestMenu from "./test-menu";
 import TestInstructions from "./test-instructions";
 import TestQuestion from "./test-question";
 import OTPVerification from "./otp-verification";
-import { extractOTPFromUrl } from "../../lib/otp";
+import { extractOTPFromUrl, getOTPTokenInfo } from "../../lib/otp";
 import { getImagePath } from "../../lib/utils/paths";
 import useTestTimerStore from "../../store/use-test-timer";
 
@@ -64,19 +64,40 @@ export default function TestDisplay({ onBackgroundChange }: TestDisplayProps) {
     console.log('計時器已啟動（關閉說明）:', new Date(startTime).toISOString());
   }
 
-  function handleOTPVerified(otpToken: string) {
+  async function handleOTPVerified(otpToken: string) {
     setVerifiedOTPToken(otpToken);
     setIsOTPVerified(true);
     setShowOTPModal(false);
     // 重設計時器
     resetTestTimer();
 
-    // 如果已經看過說明，立即開始計時
-    const hasSeenInstructions = localStorage.getItem('mbti_has_seen_instructions') === 'true';
-    if (hasSeenInstructions) {
-      const startTime = Date.now();
-      setTestStartTime(startTime);
-      console.log('計時器已啟動（跳過說明）:', new Date(startTime).toISOString());
+    // 檢查 OTP token 是否為新的（未使用過的）
+    try {
+      const tokenInfo = await getOTPTokenInfo(otpToken);
+      if (tokenInfo && !tokenInfo.usedAt) {
+        // 新的 OTP token，清除之前的說明狀態，確保新測試者看到說明
+        localStorage.removeItem('mbti_has_seen_instructions');
+        setHasSeenInstructions(false);
+        setShowTestInstructions(true);
+        console.log('新的 OTP token，重置說明狀態');
+      } else {
+        // 已使用過的 OTP token，保持現有邏輯
+        const hasSeenInstructions = localStorage.getItem('mbti_has_seen_instructions') === 'true';
+        if (hasSeenInstructions) {
+          const startTime = Date.now();
+          setTestStartTime(startTime);
+          console.log('計時器已啟動（跳過說明）:', new Date(startTime).toISOString());
+        }
+      }
+    } catch (error) {
+      console.error('獲取 OTP token 資訊失敗:', error);
+      // 如果獲取失敗，保持原有邏輯
+      const hasSeenInstructions = localStorage.getItem('mbti_has_seen_instructions') === 'true';
+      if (hasSeenInstructions) {
+        const startTime = Date.now();
+        setTestStartTime(startTime);
+        console.log('計時器已啟動（跳過說明）:', new Date(startTime).toISOString());
+      }
     }
   }
 
