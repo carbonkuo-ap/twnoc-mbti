@@ -339,7 +339,7 @@ export const personalityTest: TestQuestion[] = [
   },
   {
     no: 22,
-    question: "接到陷生人電話時，你：",
+    question: "接到陌生人電話時，你：",
     answerOptions: [
       {
         type: "A",
@@ -567,7 +567,7 @@ export const personalityTest: TestQuestion[] = [
   },
   {
     no: 49,
-    question: "面對大決定時，你會感到放鬆的是：",
+    question: "面對大決定時，你會感到舒服的是：",
     answerOptions: [
       { type: "A", answer: "終於決定好了，可以往下進行", score: "J" },
       { type: "B", answer: "還有時間考慮，可以看看其他選擇", score: "P" },
@@ -575,7 +575,7 @@ export const personalityTest: TestQuestion[] = [
   },
   {
     no: 50,
-    question: "在陳生人的派對上，你會：",
+    question: "在陌生人的派對上，你會：",
     answerOptions: [
       {
         type: "A",
@@ -603,7 +603,7 @@ export const personalityTest: TestQuestion[] = [
   },
   {
     no: 53,
-    question: "你比較欣賞這樣的人：",
+    question: "你會偏好與哪種人合作：",
     answerOptions: [
       { type: "A", answer: "能夠理性分析，給出清晰思路", score: "T" },
       { type: "B", answer: "善於傾聽，能理解別人感受", score: "F" },
