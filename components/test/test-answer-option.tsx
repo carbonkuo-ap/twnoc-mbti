@@ -10,7 +10,7 @@ export default function TestAnswerOption(props: any) {
       w="full"
       as="label"
     >
-      <input {...input} />
+      <input {...input} style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }} />
       <Box
         px={5}
         py={3}
@@ -37,8 +37,8 @@ export default function TestAnswerOption(props: any) {
           transform: "scale(1.02)",
           shadow: "lg",
         }}
-        _focus={{
-          boxShadow: "outline",
+        _focusWithin={{
+          outline: "none",
         }}
         {...checkbox}
       >

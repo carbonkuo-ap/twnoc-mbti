@@ -20,13 +20,13 @@ export default function TestResultHistory(props: TestResultHistoryProps) {
       h="full"
       px={8}
       gap={8}
-      alignSelf="flex-start"
       alignItems="center"
       direction="column"
     >
       <Heading
         as="h1"
         textAlign="center"
+        whiteSpace="nowrap"
       >
         測試歷史
       </Heading>
@@ -34,29 +34,38 @@ export default function TestResultHistory(props: TestResultHistoryProps) {
         w="full"
         gap={4}
         direction="column"
+        alignItems="center"
       >
         {props.testResults.map((testResult) => (
           <Flex
             key={testResult.timestamp}
             as={Link}
             href={`/test/result/?testResultId=${testResult.timestamp}`}
-            py={2}
-            px={4}
-            w="full"
-            rounded="md"
+            py={4}
+            px={6}
+            rounded="lg"
             cursor="pointer"
             alignItems="center"
-            justifyContent="space-between"
-            borderWidth={1}
-            borderColor="black"
+            justifyContent="center"
+            gap={6}
+            borderWidth={2}
+            borderColor="gray.300"
+            bg="white"
+            transition="all 0.2s"
             _hover={{
-              bg: "gray.100",
+              bg: "primary.50",
+              borderColor: "primary.400",
+              transform: "translateY(-2px)",
+              shadow: "md",
+            }}
+            _active={{
+              transform: "translateY(0)",
             }}
           >
-            <Text>
-              {dayjs(testResult.timestamp).format("YYYY年MM月DD日 HH:mm ")}
+            <Text whiteSpace="nowrap" fontSize="md" fontWeight="medium">
+              {dayjs(testResult.timestamp).format("YYYY年MM月DD日 HH:mm")}
             </Text>
-            <FiChevronRight />
+            <FiChevronRight size={20} />
           </Flex>
         ))}
       </Flex>

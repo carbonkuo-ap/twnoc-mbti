@@ -81,9 +81,9 @@ export default function TestResultHistoryPage() {
   // 顯示歷史記錄（只有通過驗證的用戶才會到達這裡）
   return (
     <MainLayout>
-      <Flex direction="column" gap={4}>
+      <Flex direction="column" gap={4} alignItems="center">
         {currentOtp && (
-          <Alert status="info">
+          <Alert status="info" w={{ base: "full", lg: "auto" }} borderRadius="md" whiteSpace="nowrap">
             <AlertIcon />
             正在顯示測試授權碼 {currentOtp.substring(0, 8)}... 的歷史紀錄
           </Alert>
