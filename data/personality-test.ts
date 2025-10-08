@@ -529,8 +529,8 @@ export const personalityTest: TestQuestion[] = [
     no: 44,
     question: "做判斷時，你比較依賴：",
     answerOptions: [
-      { type: "A", answer: "具體的数據和可驗證的事實", score: "S" },
-      { type: "B", answer: "概念和理論的逻輯架構", score: "N" },
+      { type: "A", answer: "具體的數據和可驗證的事實", score: "S" },
+      { type: "B", answer: "概念和理論的邏輯架構", score: "N" },
     ],
   },
   {
